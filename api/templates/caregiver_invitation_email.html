@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Caregiver Invitation – InnoIQ CGM</title>
+</head>
+<body style="margin:0;padding:0;background:#f0f4f1;font-family:Arial,Helvetica,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0"
+       style="background:#f0f4f1;padding:40px 16px;">
+    <tr>
+        <td align="center">
+
+            <!-- Card -->
+            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                   style="max-width:560px;border-radius:16px;overflow:hidden;
+                    box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+
+                <!-- ── HEADER ──────────────────────────────────────── -->
+                <tr>
+                    <td style="background:#1B5E20;padding:32px;text-align:center;">
+                        <table cellpadding="0" cellspacing="0" border="0"
+                               style="margin:0 auto 10px;">
+                            <tr>
+                                <td style="background:#4CAF50;border-radius:10px;
+                           width:40px;height:40px;text-align:center;
+                           vertical-align:middle;font-size:22px;
+                           padding:0 8px;">
+                                    &#x2665;
+                                </td>
+                                <td style="padding-left:10px;vertical-align:middle;">
+                  <span style="color:#ffffff;font-size:20px;
+                               font-weight:700;letter-spacing:-0.3px;">
+                    InnoIQ CGM
+                  </span>
+                                </td>
+                            </tr>
+                        </table>
+                        <p style="color:#A5D6A7;font-size:13px;margin:0;">
+                            Continuous Glucose Monitoring
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- ── BODY ───────────────────────────────────────── -->
+                <tr>
+                    <td style="background:#ffffff;padding:32px 32px 8px;">
+
+                        <!-- Badge -->
+                        <p style="display:inline-block;background:#E8F5E9;
+                      border:1px solid #C8E6C9;color:#2E7D32;
+                      font-size:11px;font-weight:700;
+                      padding:4px 14px;border-radius:20px;
+                      letter-spacing:0.06em;margin:0 0 20px;">
+                            CAREGIVER INVITATION
+                        </p>
+
+                        <!-- Headline -->
+                        <h1 style="color:#1a1a1a;font-size:22px;font-weight:700;
+                       margin:0 0 14px;line-height:1.35;">
+                            You've been invited to monitor glucose data
+                        </h1>
+
+                        <!-- Intro text -->
+                        <p style="color:#555555;font-size:15px;line-height:1.75;margin:0 0 26px;">
+                            Hi <strong style="color:#1a1a1a;">{{ caregiver.full_name }}</strong>,<br>
+                            <strong style="color:#1a1a1a;">
+                                {{ user.first_name }} {{ user.last_name }}
+                            </strong>
+                            has added you as a caregiver on <strong>InnoIQ CGM</strong>
+                            and would like you to help monitor their health data.
+                        </p>
+
+                        <!-- Permissions box -->
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                               style="background:#F1F8E9;border:1px solid #DCEDC8;
+                          border-radius:12px;margin-bottom:28px;">
+                            <tr>
+                                <td style="padding:18px 20px;">
+                                    <p style="font-weight:700;color:#33691E;font-size:14px;
+                             margin:0 0 14px;">
+                                        &#x1F512;&nbsp; Your access permissions
+                                    </p>
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <!-- col 1 -->
+                                            <td width="50%" style="vertical-align:top;padding-right:6px;">
+
+                                                {% if caregiver.can_view_glucose %}
+                                                <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                                       style="background:#ffffff;border:1px solid #C5E1A5;
+                                      border-radius:8px;margin-bottom:8px;">
+                                                    <tr>
+                                                        <td style="padding:10px 12px;font-size:13px;
+                                       color:#2E7D32;font-weight:500;">
+                                                            &#x1F4C8;&nbsp; Real-time glucose
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                {% endif %}
+
+                                                {% if caregiver.can_view_reports %}
+                                                <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                                       style="background:#ffffff;border:1px solid #C5E1A5;
+                                      border-radius:8px;margin-bottom:8px;">
+                                                    <tr>
+                                                        <td style="padding:10px 12px;font-size:13px;
+                                       color:#2E7D32;font-weight:500;">
+                                                            &#x1F4C4;&nbsp; Reports
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                {% endif %}
+
+                                            </td>
+                                            <!-- col 2 -->
+                                            <td width="50%" style="vertical-align:top;padding-left:6px;">
+
+                                                {% if caregiver.can_view_alerts %}
+                                                <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                                       style="background:#ffffff;border:1px solid #C5E1A5;
+                                      border-radius:8px;margin-bottom:8px;">
+                                                    <tr>
+                                                        <td style="padding:10px 12px;font-size:13px;
+                                       color:#2E7D32;font-weight:500;">
+                                                            &#x1F514;&nbsp; Alerts
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                {% endif %}
+
+                                                {% if caregiver.can_view_trends %}
+                                                <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                                       style="background:#ffffff;border:1px solid #C5E1A5;
+                                      border-radius:8px;margin-bottom:8px;">
+                                                    <tr>
+                                                        <td style="padding:10px 12px;font-size:13px;
+                                       color:#2E7D32;font-weight:500;">
+                                                            &#x1F4CA;&nbsp; Trends
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                {% endif %}
+
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- CTA Button -->
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                               style="margin-bottom:14px;">
+                            <tr>
+                                <td align="center">
+                                    <a href="{{ invite_link }}"
+                                       style="display:inline-block;background:#2E7D32;color:#ffffff;
+                            text-decoration:none;padding:15px 40px;
+                            border-radius:10px;font-size:16px;
+                            font-weight:700;letter-spacing:0.02em;">
+                                        Accept Invitation
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Fallback link -->
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                               style="margin-bottom:28px;">
+                            <tr>
+                                <td align="center">
+                                    <p style="color:#999999;font-size:12px;margin:0 0 4px;">
+                                        Button not working? Copy this link into your browser:
+                                    </p>
+                                    <p style="font-size:12px;margin:0;word-break:break-all;">
+                                        <a href="{{ invite_link }}"
+                                           style="color:#4CAF50;text-decoration:none;">
+                                            {{ invite_link }}
+                                        </a>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+
+                <!-- ── DIVIDER ──────────────────────────────────────── -->
+                <tr>
+                    <td style="background:#ffffff;padding:0 32px;">
+                        <div style="height:1px;background:#f0f0f0;"></div>
+                    </td>
+                </tr>
+
+                <!-- ── WHAT IS INNOIQ ──────────────────────────────── -->
+                <tr>
+                    <td style="background:#ffffff;padding:20px 32px 28px;">
+                        <p style="font-size:13px;font-weight:700;color:#333333;margin:0 0 6px;">
+                            What is InnoIQ CGM?
+                        </p>
+                        <p style="font-size:13px;color:#888888;line-height:1.7;margin:0;">
+                            InnoIQ CGM is a continuous glucose monitoring platform that helps users
+                            and their caregivers track blood sugar levels in real-time, receive
+                            intelligent alerts, and review trends over time.
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- ── FOOTER ───────────────────────────────────────── -->
+                <tr>
+                    <td style="background:#F9FAF9;border-top:1px solid #eeeeee;
+                     padding:22px 32px;text-align:center;">
+                        <p style="font-size:12px;color:#aaaaaa;line-height:1.8;margin:0 0 10px;">
+                            This invitation was sent to
+                            <strong style="color:#888888;">{{ caregiver.email_id }}</strong>.<br>
+                            This link expires in <strong style="color:#888888;">7 days</strong>.<br>
+                            If you did not expect this, you can safely ignore this email.
+                        </p>
+                        <p style="font-size:11px;color:#cccccc;margin:0;">
+                            &copy; 2025 InnoIQ CGM &middot; All rights reserved
+                        </p>
+                    </td>
+                </tr>
+
+            </table>
+            <!-- /Card -->
+
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

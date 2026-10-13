@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Wise Glucose Report</title>
+</head>
+<body>
+
+<h2>User Wise Glucose Report</h2>
+
+<form id="reportForm">
+
+    <label>Select User</label>
+
+    <select id="user_id">
+        <option value="">-- Select User --</option>
+
+        {% for user in users %}
+        <option value="{{ user.user_id }}">
+            {{ user.first_name }} {{ user.last_name }} ({{ user.user_id }})
+        </option>
+        {% endfor %}
+
+    </select>
+
+    <button type="submit">View Report</button>
+
+</form>
+
+<hr>
+
+<h3>Report</h3>
+
+<table border="1" id="reportTable">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>User</th>
+        <th>Glucose</th>
+        <th>Date</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+
+<script>
+
+    document.getElementById("reportForm").addEventListener("submit", function(e){
+
+        e.preventDefault();
+
+        const userId = document.getElementById("user_id").value;
+
+        if(!userId){
+            alert("Please select user");
+            return;
+        }
+
+            const baseUrl = window.location.origin;
+            const url = `${baseUrl}/api/logentries-userwise/?user=${userId}`;
+
+        fetch(url)
+        .then(response => response.json())
+        .then(data => {
+
+            const tableBody = document.querySelector("#reportTable tbody");
+            tableBody.innerHTML = "";
+
+            data.forEach(item => {
+
+                const row = `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.user}</td>
+                        <td>${item.glucose}</td>
+                        <td>${item.created_at}</td>
+                    </tr>
+                `;
+
+                tableBody.innerHTML += row;
+            });
+
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+
+    });
+
+</script>
+
+</body>
+</html>

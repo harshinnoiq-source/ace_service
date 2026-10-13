@@ -1,0 +1,1755 @@
+﻿[
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$diQwXB42BjXiSy3nZjH7Jy$wSWl7FUPYCRyWgza0ksBVXJvK297TvnjbqilpR+/z0Q=",
+    "last_login": "2025-11-07T07:09:17.425Z",
+    "is_superuser": true,
+    "username": "root",
+    "first_name": "",
+    "last_name": "",
+    "email": "harsh.dhage@innoiq.in",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-11-07T07:04:01.528Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$eomdb6MZoveprIMMz3M7pg$HrSH5Ol/mEN/YrCrxdzs9klVsz50AE075jIBC6K0e2g=",
+    "last_login": "2026-06-04T09:44:59.459Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-05-13T07:03:39.967Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "1c603h6b38bt47za4lp3u21uvr8nd49b",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQAP_C2ZCyLRQ8eu8byMIuUjWQlPZk_Lsh6UGvM5N5C4_Hnv3RePMriasAcfllAeOTSxf0wHKvMtayb2uQPZGnbXKpxK_b2f4NMrbct2lMZtDKwmRYqzQ54nkmSJaSdTYpo1EHExwpHsAgOA5WBdTROCA7is8X19Y3vw:1wPaNe:3zcLgKi8LHdDrmCDg3L2-PwZxxAc2JzcoyrnGVtMROI",
+    "expire_date": "2026-06-03T06:26:10.828Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "43h4waxrfwwipwxd17exx8kicr8orxs5",
+  "fields": {
+    "session_data": ".eJxVjDEOAiEQRe9CbQgwgGJp7xnIwAyyaiBZdivj3XWTLbT9773_EhHXpcZ18BwnEmehxeF3S5gf3DZAd2y3LnNvyzwluSlyp0NeO_Hzsrt_BxVH_dbOOYISfEDlAlhIpIi1BWt9UVhyYU8-J7CGPbA3GdMxU0nG6eDCicX7A-GTODs:1vHGaz:4OMvzp5OMMYhVSdZEOKlo46b2sTOE-_Rh1UeDHFCcAs",
+    "expire_date": "2025-11-21T07:09:17.437Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "p59dqe9nazen17dqqpmbi7xxdugeq0mi",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQAP_C2ZCyLRQ8eu8byMIuUjWQlPZk_Lsh6UGvM5N5C4_Hnv3RePMriasAcfllAeOTSxf0wHKvMtayb2uQPZGnbXKpxK_b2f4NMrbct2lMZtDKwmRYqzQ54nkmSJaSdTYpo1EHExwpHsAgOA5WBdTROCA7is8X19Y3vw:1wSC7B:6O8AAltgv53PergugwOAuDzFtep9m49OsGNn46fkvBc",
+    "expire_date": "2026-06-10T11:07:57.706Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "w30g10eahobcuh4sacn761znoclq92yw",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQAP_C2ZCyLRQ8eu8byMIuUjWQlPZk_Lsh6UGvM5N5C4_Hnv3RePMriasAcfllAeOTSxf0wHKvMtayb2uQPZGnbXKpxK_b2f4NMrbct2lMZtDKwmRYqzQ54nkmSJaSdTYpo1EHExwpHsAgOA5WBdTROCA7is8X19Y3vw:1wOrIN:578LDuJ9ySTvx-yG3Od7Dp1_MErRvX9_aIgbDI_9UQ0",
+    "expire_date": "2026-06-01T06:17:43.125Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "w5no3n424nisetwhbsxnqvr0oa41ac5f",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQAP_C2ZCyLRQ8eu8byMIuUjWQlPZk_Lsh6UGvM5N5C4_Hnv3RePMriasAcfllAeOTSxf0wHKvMtayb2uQPZGnbXKpxK_b2f4NMrbct2lMZtDKwmRYqzQ54nkmSJaSdTYpo1EHExwpHsAgOA5WBdTROCA7is8X19Y3vw:1wV4dH:OPqSUyqIHRlZh0DA17YIs1lQz5PRlP0g7jmWvkepJvE",
+    "expire_date": "2026-06-18T09:44:59.468Z"
+  }
+},
+{
+  "model": "api.version",
+  "pk": 1,
+  "fields": {
+    "version": "1.0.0",
+    "description": "Initial release of the API"
+  }
+},
+{
+  "model": "api.logentry",
+  "pk": 1,
+  "fields": {
+    "user": "ACECGM00001",
+    "glucose_value": 120.5,
+    "amp": 1.5,
+    "timestamp": "2026-05-11T10:00:00Z",
+    "note": "After breakfast",
+    "deviceid": "DEV123456"
+  }
+},
+{
+  "model": "api.logentry",
+  "pk": 2,
+  "fields": {
+    "user": "INNOIQCGM00010",
+    "glucose_value": 120.5,
+    "amp": 1.5,
+    "timestamp": "2026-05-11T10:00:00Z",
+    "note": "After breakfast",
+    "deviceid": "DEV1235659257"
+  }
+},
+{
+  "model": "api.logentry",
+  "pk": 3,
+  "fields": {
+    "user": "INNOIQCGM00010",
+    "glucose_value": 120.5,
+    "amp": 1.5,
+    "timestamp": "2026-05-11T10:00:00Z",
+    "note": "After breakfast",
+    "deviceid": "DEV123565925"
+  }
+},
+{
+  "model": "api.logentry",
+  "pk": 4,
+  "fields": {
+    "user": "INNOIQCGM00010",
+    "glucose_value": 120.5,
+    "amp": 1.5,
+    "timestamp": "2026-05-11T10:00:00Z",
+    "note": "After breakfast",
+    "deviceid": "DEV123565925"
+  }
+},
+{
+  "model": "api.logentry",
+  "pk": 5,
+  "fields": {
+    "user": "INNOIQCGM00010",
+    "glucose_value": 120.5,
+    "amp": 1.5,
+    "timestamp": "2026-05-11T10:00:00Z",
+    "note": "After breakfast",
+    "deviceid": "DEV12356592"
+  }
+},
+{
+  "model": "api.logentry",
+  "pk": 6,
+  "fields": {
+    "user": "INNOIQCGM00010",
+    "glucose_value": 120.5,
+    "amp": 1.5,
+    "timestamp": "2026-05-11T10:00:00Z",
+    "note": "After breakfast",
+    "deviceid": "DEV123565923"
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "ACECGM00001",
+  "fields": {
+    "first_name": "John",
+    "middle_name": "S",
+    "last_name": "Kale",
+    "email_id": null,
+    "password": "2026-04-22 05:45:15.291678+00:00",
+    "gender": "Male",
+    "dob": "2000-11-20",
+    "mobile_number": "8793797932",
+    "address": "Hadapsar",
+    "city": "1",
+    "state": "1",
+    "zip_code": "1",
+    "isNewUser": true,
+    "profile_picture": "profile_pics/Step_1.png",
+    "google_profile_picture": null,
+    "created_at": "2026-04-22T05:45:15.273Z",
+    "updated_at": "2026-04-22T05:45:15.297Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "ACECGM00002",
+  "fields": {
+    "first_name": "John",
+    "middle_name": "S",
+    "last_name": "Ghodile",
+    "email_id": null,
+    "password": "2026-04-22 05:45:15.291678+00:00",
+    "gender": "Male",
+    "dob": "2000-11-20",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "1",
+    "state": "1",
+    "zip_code": "1",
+    "isNewUser": true,
+    "profile_picture": "profile_pics/Step_1_kCDhXPa.png",
+    "google_profile_picture": null,
+    "created_at": "2026-04-22T05:45:15.273Z",
+    "updated_at": "2026-04-22T05:45:15.297Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00003",
+  "fields": {
+    "first_name": "Deepali",
+    "middle_name": "",
+    "last_name": "Patil",
+    "email_id": null,
+    "password": "pbkdf2_sha256$600000$0zKDCF7G6pnPX1T9D53tkQ$cyeSPJIaHUc9axIvepnxxDgwPlTAtbWnuPcr7SWApq0=",
+    "gender": "Female",
+    "dob": "1998-05-10",
+    "mobile_number": "9876543210",
+    "address": "Pune",
+    "city": "1",
+    "state": "1",
+    "zip_code": "1",
+    "isNewUser": false,
+    "profile_picture": "",
+    "google_profile_picture": null,
+    "created_at": "2026-04-22T06:48:47.273Z",
+    "updated_at": "2026-05-08T06:17:44.382Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00004",
+  "fields": {
+    "first_name": "deep",
+    "middle_name": "S",
+    "last_name": "waghmare",
+    "email_id": null,
+    "password": "pbkdf2_sha256$600000$BrU7GKElWpGpHOCJTU2l6u$4C94rqDj9hbeuhN1xw+QTX4oV2mqAlT7oeWVHCeZfSI=",
+    "gender": "Male",
+    "dob": "2000-11-20",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "1",
+    "state": "1",
+    "zip_code": "1",
+    "isNewUser": true,
+    "profile_picture": "",
+    "google_profile_picture": null,
+    "created_at": "2026-04-22T07:08:10.896Z",
+    "updated_at": "2026-04-22T07:08:10.896Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00005",
+  "fields": {
+    "first_name": "deep",
+    "middle_name": "S",
+    "last_name": "waghmare",
+    "email_id": "deepali.innoiq@example.com",
+    "password": "pbkdf2_sha256$1200000$MyD5cfFnzvz7q1RFZXljaC$bcKnfHejKbAjv4dl8qHvaznoss56sbC6ZqT36l/6hsQ=",
+    "gender": "Male",
+    "dob": "2000-11-20",
+    "mobile_number": "9021728845",
+    "address": "pimpri",
+    "city": "1",
+    "state": "1",
+    "zip_code": "1",
+    "isNewUser": false,
+    "profile_picture": "profile_pics/Screenshot_2026-03-30_095252_YlNs3kq.png",
+    "google_profile_picture": null,
+    "created_at": "2026-04-22T07:10:40.068Z",
+    "updated_at": "2026-05-22T10:28:23.503Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00006",
+  "fields": {
+    "first_name": "deep",
+    "middle_name": "S",
+    "last_name": "waghmare",
+    "email_id": "deepali@example.com",
+    "password": "pbkdf2_sha256$600000$hAkzIGzGTAXmc1beIA10zn$kt/QTMdMHSfdvnxaFem6JRdfCR9vOWGkTrFaW3y1J9w=",
+    "gender": "Male",
+    "dob": "2000-11-20",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "1",
+    "state": "1",
+    "zip_code": "1",
+    "isNewUser": true,
+    "profile_picture": "",
+    "google_profile_picture": null,
+    "created_at": "2026-04-22T07:11:56.024Z",
+    "updated_at": "2026-04-22T07:11:56.024Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00007",
+  "fields": {
+    "first_name": "deep",
+    "middle_name": "S",
+    "last_name": "waghmare",
+    "email_id": "deepali1@example.com",
+    "password": "pbkdf2_sha256$600000$wV1adsFA2EtEux8CgDIJE8$kv64tTXGGOfy6KcfIwbdeHvppQzVqHGhAsbsUI3+PUg=",
+    "gender": "Male",
+    "dob": "2000-11-20",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "1",
+    "state": "1",
+    "zip_code": "1",
+    "isNewUser": true,
+    "profile_picture": "profile_pics/Screenshot_2026-04-21_155439.png",
+    "google_profile_picture": null,
+    "created_at": "2026-04-22T07:16:40.098Z",
+    "updated_at": "2026-04-22T07:16:40.098Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00008",
+  "fields": {
+    "first_name": "deep",
+    "middle_name": "S",
+    "last_name": "waghmare",
+    "email_id": "deepali2@example.com",
+    "password": "pbkdf2_sha256$600000$YJnLyU9XYyYZgPzeCHuCd6$xdWbyCfCKuBROExpj2ynvz/I8nmdnfVXaf8+P/TN3cM=",
+    "gender": "Male",
+    "dob": "2000-11-20",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "1",
+    "state": "1",
+    "zip_code": "1",
+    "isNewUser": true,
+    "profile_picture": "profile_pics/Screenshot_2026-04-21_155439_FhNE27H.png",
+    "google_profile_picture": null,
+    "created_at": "2026-04-22T07:40:12.004Z",
+    "updated_at": "2026-04-22T07:40:12.004Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00009",
+  "fields": {
+    "first_name": "deep",
+    "middle_name": "S",
+    "last_name": "waghmare",
+    "email_id": "deepali3@example.com",
+    "password": "pbkdf2_sha256$600000$5k9ar1dNk6MmU0ABEN0Beh$5sw0fojX9Glq1Nnc+IJTldHrYzY7jT2gJEPREC4+H8s=",
+    "gender": "Male",
+    "dob": "2000-11-20",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "1",
+    "state": "1",
+    "zip_code": "1",
+    "isNewUser": false,
+    "profile_picture": "profile_pics/Screenshot_2026-04-21_155439_hC5zeme.png",
+    "google_profile_picture": null,
+    "created_at": "2026-04-22T07:44:44.763Z",
+    "updated_at": "2026-04-22T07:44:44.763Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00010",
+  "fields": {
+    "first_name": "deep",
+    "middle_name": "S",
+    "last_name": "waghmare",
+    "email_id": "nandu@example.com",
+    "password": "pbkdf2_sha256$600000$ciIZPsIB18KfrhcCW9PC13$J54PPo6SexQHKNXCuAVwO3AXONmRS5SzIx158A/WLlg=",
+    "gender": "Male",
+    "dob": "2000-11-20",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "1",
+    "state": "1",
+    "zip_code": "1",
+    "isNewUser": false,
+    "profile_picture": "profile_pics/Screenshot_2026-03-30_095252_RZuIAHE.png",
+    "google_profile_picture": null,
+    "created_at": "2026-04-22T07:47:27.661Z",
+    "updated_at": "2026-05-13T05:17:05.932Z",
+    "emergency_contact_number": "9021728845",
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00011",
+  "fields": {
+    "first_name": "deep",
+    "middle_name": "S",
+    "last_name": "waghmare",
+    "email_id": "deepali5@example.com",
+    "password": "pbkdf2_sha256$600000$O5ZdB4o1rJpzEf2DkqIls3$3oqmRFd51AcSPto3RhuYhyprJDJTNktRrLLBvZGE9x4=",
+    "gender": "Male",
+    "dob": "2000-11-20",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "1",
+    "state": "1",
+    "zip_code": "1",
+    "isNewUser": false,
+    "profile_picture": "profile_pics/Screenshot_2026-04-21_155439_uv6rn4H.png",
+    "google_profile_picture": null,
+    "created_at": "2026-04-22T08:42:54.764Z",
+    "updated_at": "2026-04-22T08:42:54.764Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00012",
+  "fields": {
+    "first_name": "nandu",
+    "middle_name": "S",
+    "last_name": "Ghodile",
+    "email_id": "nandu@gmail.com",
+    "password": "pbkdf2_sha256$600000$TufYZlNyNcW0bQKH82aLIG$EMY8WoWrd68bJ1hTWa62dwx9IaVtpo6yEd/c00JHAQw=",
+    "gender": "M",
+    "dob": "2000-11-20",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "1",
+    "state": "1",
+    "zip_code": "1",
+    "isNewUser": true,
+    "profile_picture": "",
+    "google_profile_picture": null,
+    "created_at": "2026-04-23T12:05:31.562Z",
+    "updated_at": "2026-04-23T12:05:31.562Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00013",
+  "fields": {
+    "first_name": "harshda",
+    "middle_name": "S",
+    "last_name": "Ghodile",
+    "email_id": "harshda@gmail.com",
+    "password": "pbkdf2_sha256$600000$t2YuytZtgl94PhOcSR2Ivr$gBYuEcFZ4DgAFZRfb+Vf+anpzjgvb2aed1q2QiXGv0A=",
+    "gender": "F",
+    "dob": "2000-11-20",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "1",
+    "state": "1",
+    "zip_code": "1",
+    "isNewUser": true,
+    "profile_picture": "",
+    "google_profile_picture": null,
+    "created_at": "2026-04-23T12:15:47.548Z",
+    "updated_at": "2026-04-23T12:15:47.548Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00014",
+  "fields": {
+    "first_name": "Nandu",
+    "middle_name": "abc",
+    "last_name": "xyz",
+    "email_id": "nanduinnoiq@gmail.com",
+    "password": "pbkdf2_sha256$1200000$upVL7Dfi5V9WPJ7ifODX7s$13ZQF9oXmliPdw2cVTiWboPq2A3kQOWFIcydq/GypOE=",
+    "gender": "Male",
+    "dob": "2000-11-20",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "1",
+    "state": "1",
+    "zip_code": "1",
+    "isNewUser": true,
+    "profile_picture": "profile_pics/Screenshot_2026-03-30_095252_daMskbL.png",
+    "google_profile_picture": null,
+    "created_at": "2026-05-11T07:04:34.416Z",
+    "updated_at": "2026-05-11T07:04:34.416Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00015",
+  "fields": {
+    "first_name": "harshda",
+    "middle_name": "S",
+    "last_name": "Ghodile",
+    "email_id": "harshda.innoiq@gmail.com",
+    "password": "pbkdf2_sha256$1200000$Yt0BR2pwGfPDjSvfBHNUik$87pfAPWPwv5NwjXvb1tP4mbbuw6QJ0CiWwZ71vHLVFo=",
+    "gender": "Female",
+    "dob": "2000-11-20",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "Pune",
+    "state": "1",
+    "zip_code": "411017",
+    "isNewUser": true,
+    "profile_picture": "",
+    "google_profile_picture": null,
+    "created_at": "2026-05-12T13:22:01.501Z",
+    "updated_at": "2026-05-12T13:22:01.501Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00016",
+  "fields": {
+    "first_name": "Deepali",
+    "middle_name": "Vishnu",
+    "last_name": "Waghmare",
+    "email_id": "deepali.waghmare@innoiq.in",
+    "password": "pbkdf2_sha256$1200000$OHgJbce03aEftd4IpWmK6B$ESmFbl/jaC/TaA9nnptw1qUu3R87qNF7+2H48kNal/U=",
+    "gender": "Female",
+    "dob": "2000-02-05",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "Pune",
+    "state": "1",
+    "zip_code": "411017",
+    "isNewUser": true,
+    "profile_picture": "profile_pics/Screenshot_2026-03-30_095252_tMUWp6X.png",
+    "google_profile_picture": null,
+    "created_at": "2026-05-12T13:25:17.989Z",
+    "updated_at": "2026-05-28T05:31:23.192Z",
+    "emergency_contact_number": "9595399850",
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": "PDoCV5Qw5gT2A0AIk0GX3Gj6KH52"
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00017",
+  "fields": {
+    "first_name": "Rupali",
+    "middle_name": "Vishnu",
+    "last_name": "Waghmare",
+    "email_id": "rupali.innoiq@gmail.com",
+    "password": "pbkdf2_sha256$1200000$AWolLqDuZKOpWDO5oDhTS2$jBNEJ7f47zGBMvXXeg3BJx6tFiypVZpfWE7YVwi4ML8=",
+    "gender": "Female",
+    "dob": "2000-02-05",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "Pune",
+    "state": "1",
+    "zip_code": "411017",
+    "isNewUser": true,
+    "profile_picture": "profile_pics/Screenshot_2026-03-30_095252_2L9ooXh.png",
+    "google_profile_picture": null,
+    "created_at": "2026-05-13T05:55:44.505Z",
+    "updated_at": "2026-05-13T05:58:28.587Z",
+    "emergency_contact_number": "9021728844",
+    "emergency_contact_name": "Ashok waghmare",
+    "emergency_contact_relation": "brother",
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00018",
+  "fields": {
+    "first_name": "Nandu",
+    "middle_name": null,
+    "last_name": "Bankar",
+    "email_id": "nandkumar.bankar@innoiq.in",
+    "password": "pbkdf2_sha256$1200000$UjerxRE5PctRs5XdFH2v93$4RCCzqVT4x/s0xn3IhvaSSxhKqea8K4WlSpAJc4U9yw=",
+    "gender": null,
+    "dob": null,
+    "mobile_number": null,
+    "address": "",
+    "city": null,
+    "state": null,
+    "zip_code": null,
+    "isNewUser": true,
+    "profile_picture": "profile_pics/Screenshot_2026-03-30_095252_eipEGqh.png",
+    "google_profile_picture": null,
+    "created_at": "2026-05-14T07:05:05.700Z",
+    "updated_at": "2026-05-28T10:02:30.279Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": "PDoCV5Qw5gT2A0AIk0GX3Gj6KH52"
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00019",
+  "fields": {
+    "first_name": "Harsh",
+    "middle_name": null,
+    "last_name": "Dhage",
+    "email_id": "harsh.dhage@innoiq.in",
+    "password": "pbkdf2_sha256$1200000$aWFQHvfuqsHTgMBA3CnW6W$UYqGeT7zlalNmw9uyQcsvHfiGww106+fcmPE9bOlMLM=",
+    "gender": "Male",
+    "dob": "2000-02-05",
+    "mobile_number": null,
+    "address": "Kalyani nagar,Pune",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "zip_code": "411017",
+    "isNewUser": true,
+    "profile_picture": "",
+    "google_profile_picture": null,
+    "created_at": "2026-05-28T05:35:59.897Z",
+    "updated_at": "2026-05-28T10:25:37.264Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": ""
+  }
+},
+{
+  "model": "api.usermaster",
+  "pk": "INNOIQCGM00020",
+  "fields": {
+    "first_name": "Ashok",
+    "middle_name": "Vishnu",
+    "last_name": "Waghmare",
+    "email_id": "test90@gmail.com",
+    "password": null,
+    "gender": "Female",
+    "dob": "2000-02-05",
+    "mobile_number": null,
+    "address": "Hadapsar",
+    "city": "Pune",
+    "state": "Maharshtra",
+    "zip_code": "411017",
+    "isNewUser": true,
+    "profile_picture": "profile_pics/elisabeth-arnold-oPmIQeKYeqc-unsplash.jpg",
+    "google_profile_picture": null,
+    "created_at": "2026-05-29T06:21:45.462Z",
+    "updated_at": "2026-05-29T06:21:45.462Z",
+    "emergency_contact_number": null,
+    "emergency_contact_name": null,
+    "emergency_contact_relation": null,
+    "firebase_token": null
+  }
+},
+{
+  "model": "api.devicemaster",
+  "pk": 1,
+  "fields": {
+    "user": "INNOIQCGM00003",
+    "device_serial_no": "DEV123",
+    "device_type": "1",
+    "status": "ACTIVE",
+    "life_span_days": 14,
+    "assigned_at": "2026-04-27T06:44:33.553Z"
+  }
+},
+{
+  "model": "api.devicemaster",
+  "pk": 2,
+  "fields": {
+    "user": "INNOIQCGM00003",
+    "device_serial_no": "DEV1235",
+    "device_type": "1",
+    "status": "ACTIVE",
+    "life_span_days": 14,
+    "assigned_at": "2026-05-08T06:17:44.365Z"
+  }
+},
+{
+  "model": "api.devicemaster",
+  "pk": 3,
+  "fields": {
+    "user": "INNOIQCGM00010",
+    "device_serial_no": "DEV12356592",
+    "device_type": "1",
+    "status": "ACTIVE",
+    "life_span_days": 14,
+    "assigned_at": "2026-05-12T04:09:15.379Z"
+  }
+},
+{
+  "model": "api.devicemaster",
+  "pk": 4,
+  "fields": {
+    "user": "INNOIQCGM00010",
+    "device_serial_no": "DEV123565925",
+    "device_type": "1",
+    "status": "ACTIVE",
+    "life_span_days": 14,
+    "assigned_at": "2026-05-12T04:09:24.499Z"
+  }
+},
+{
+  "model": "api.devicemaster",
+  "pk": 5,
+  "fields": {
+    "user": "INNOIQCGM00010",
+    "device_serial_no": "DEV1235659257",
+    "device_type": "1",
+    "status": "ACTIVE",
+    "life_span_days": 14,
+    "assigned_at": "2026-05-12T04:09:32.720Z"
+  }
+},
+{
+  "model": "api.devicemaster",
+  "pk": 6,
+  "fields": {
+    "user": "INNOIQCGM00005",
+    "device_serial_no": "DEV123565921",
+    "device_type": "CGM",
+    "status": "REMOVED",
+    "life_span_days": 14,
+    "assigned_at": "2026-05-22T10:28:07.294Z"
+  }
+},
+{
+  "model": "api.devicemaster",
+  "pk": 7,
+  "fields": {
+    "user": "INNOIQCGM00005",
+    "device_serial_no": "DEV123565922",
+    "device_type": "CGM",
+    "status": "ACTIVE",
+    "life_span_days": 14,
+    "assigned_at": "2026-05-22T10:28:23.214Z"
+  }
+},
+{
+  "model": "api.passwordresettoken",
+  "pk": 1,
+  "fields": {
+    "user": "INNOIQCGM00018",
+    "token": "85314e64-d385-4bc6-ad00-6992ac82ece8",
+    "otp_code": null,
+    "otp_verified": false,
+    "attempts": 0,
+    "created_at": "2026-05-27T13:09:20.706Z",
+    "expires_at": "2026-05-28T13:09:20.705Z",
+    "is_used": true
+  }
+},
+{
+  "model": "api.passwordresettoken",
+  "pk": 2,
+  "fields": {
+    "user": "INNOIQCGM00018",
+    "token": "8a9724c5-2f56-4410-9e99-83842920170d",
+    "otp_code": null,
+    "otp_verified": false,
+    "attempts": 0,
+    "created_at": "2026-05-28T05:25:38.378Z",
+    "expires_at": "2026-05-29T05:25:38.377Z",
+    "is_used": true
+  }
+},
+{
+  "model": "api.passwordresettoken",
+  "pk": 3,
+  "fields": {
+    "user": "INNOIQCGM00018",
+    "token": "fbe54ea1-4686-416a-b56c-188fbb4b31c8",
+    "otp_code": null,
+    "otp_verified": false,
+    "attempts": 0,
+    "created_at": "2026-05-28T05:27:23.402Z",
+    "expires_at": "2026-05-29T05:27:23.402Z",
+    "is_used": true
+  }
+},
+{
+  "model": "api.passwordresettoken",
+  "pk": 4,
+  "fields": {
+    "user": "INNOIQCGM00018",
+    "token": "1d84e321-9e64-48be-9fee-4d12a9888ac0",
+    "otp_code": null,
+    "otp_verified": false,
+    "attempts": 0,
+    "created_at": "2026-05-28T05:29:08.970Z",
+    "expires_at": "2026-05-29T05:29:08.969Z",
+    "is_used": true
+  }
+},
+{
+  "model": "api.passwordresettoken",
+  "pk": 5,
+  "fields": {
+    "user": "INNOIQCGM00016",
+    "token": "cb6de2ab-eedd-4944-ba80-a7a001f6e189",
+    "otp_code": null,
+    "otp_verified": false,
+    "attempts": 0,
+    "created_at": "2026-05-28T05:31:37.084Z",
+    "expires_at": "2026-05-29T05:31:37.084Z",
+    "is_used": false
+  }
+},
+{
+  "model": "api.passwordresettoken",
+  "pk": 6,
+  "fields": {
+    "user": "INNOIQCGM00019",
+    "token": "a347d892-01b7-4ff6-a2a5-49bbf2a4bb28",
+    "otp_code": null,
+    "otp_verified": false,
+    "attempts": 0,
+    "created_at": "2026-05-28T05:36:56.792Z",
+    "expires_at": "2026-05-29T05:36:56.792Z",
+    "is_used": true
+  }
+},
+{
+  "model": "api.passwordresettoken",
+  "pk": 7,
+  "fields": {
+    "user": "INNOIQCGM00018",
+    "token": "27584e76-2a72-4dc8-a61c-ce466bf551a4",
+    "otp_code": null,
+    "otp_verified": false,
+    "attempts": 0,
+    "created_at": "2026-05-28T05:52:54.213Z",
+    "expires_at": "2026-05-29T05:52:54.213Z",
+    "is_used": true
+  }
+},
+{
+  "model": "api.passwordresettoken",
+  "pk": 8,
+  "fields": {
+    "user": "INNOIQCGM00018",
+    "token": "e3d37668-baab-4b81-b9d8-4b636ff4845c",
+    "otp_code": null,
+    "otp_verified": false,
+    "attempts": 0,
+    "created_at": "2026-05-28T07:16:21.866Z",
+    "expires_at": "2026-05-29T07:16:21.865Z",
+    "is_used": true
+  }
+},
+{
+  "model": "api.passwordresettoken",
+  "pk": 9,
+  "fields": {
+    "user": "INNOIQCGM00019",
+    "token": "c295dfd7-5346-4f5e-b7d4-f736fd543e54",
+    "otp_code": null,
+    "otp_verified": false,
+    "attempts": 0,
+    "created_at": "2026-05-28T10:24:12.413Z",
+    "expires_at": "2026-05-29T10:24:12.412Z",
+    "is_used": true
+  }
+},
+{
+  "model": "api.passwordresettoken",
+  "pk": 10,
+  "fields": {
+    "user": "INNOIQCGM00019",
+    "token": "785b1a4c-67c9-4e0c-a4ff-9a43a4ff321a",
+    "otp_code": null,
+    "otp_verified": false,
+    "attempts": 0,
+    "created_at": "2026-05-28T10:24:43.365Z",
+    "expires_at": "2026-05-29T10:24:43.365Z",
+    "is_used": true
+  }
+},
+{
+  "model": "api.passwordresettoken",
+  "pk": 11,
+  "fields": {
+    "user": "INNOIQCGM00018",
+    "token": "9b754d87-dca1-4e08-8918-106fb57d403f",
+    "otp_code": null,
+    "otp_verified": false,
+    "attempts": 0,
+    "created_at": "2026-05-28T13:07:56.227Z",
+    "expires_at": "2026-05-29T13:07:56.226Z",
+    "is_used": true
+  }
+},
+{
+  "model": "api.passwordresettoken",
+  "pk": 12,
+  "fields": {
+    "user": "INNOIQCGM00018",
+    "token": "43fe1d35-444c-474f-bfaa-99b30a0d4e6c",
+    "otp_code": null,
+    "otp_verified": false,
+    "attempts": 0,
+    "created_at": "2026-05-28T13:08:25.919Z",
+    "expires_at": "2026-05-29T13:08:25.918Z",
+    "is_used": true
+  }
+},
+{
+  "model": "api.passwordresettoken",
+  "pk": 13,
+  "fields": {
+    "user": "INNOIQCGM00018",
+    "token": "4c1376cb-283a-4e85-8df4-8feaf135126e",
+    "otp_code": null,
+    "otp_verified": false,
+    "attempts": 0,
+    "created_at": "2026-06-01T05:49:37.220Z",
+    "expires_at": "2026-06-02T05:49:37.214Z",
+    "is_used": false
+  }
+},
+{
+  "model": "api.appmedia",
+  "pk": 1,
+  "fields": {
+    "order": 1,
+    "file": "app_media/Screenshot_2026-03-30_095252.png",
+    "type": "Image",
+    "uploaded_at": "2026-06-10T05:12:55.685Z",
+    "duration": 5,
+    "label": "Testing",
+    "link": "https://www.google.com/"
+  }
+},
+{
+  "model": "api.appmedia",
+  "pk": 2,
+  "fields": {
+    "order": 2,
+    "file": "app_media/Screenshot_2026-03-30_095150_JefYMSS.png",
+    "type": "video",
+    "uploaded_at": "2026-06-09T13:23:35.038Z",
+    "duration": 5,
+    "label": "Testing",
+    "link": "https://www.google.com/"
+  }
+},
+{
+  "model": "api.appmedia",
+  "pk": 3,
+  "fields": {
+    "order": 3,
+    "file": "app_media/slot_3.jpg",
+    "type": "Image",
+    "uploaded_at": "2026-06-09T11:17:42.870Z",
+    "duration": 5000,
+    "label": "",
+    "link": ""
+  }
+},
+{
+  "model": "api.caregivermaster",
+  "pk": 15,
+  "fields": {
+    "user": "INNOIQCGM00011",
+    "full_name": "Sarah Johnson",
+    "email_id": "nandkumar.bankar@innoiq.in",
+    "relationship": "Spouse",
+    "status": "REMOVED",
+    "can_view_glucose": true,
+    "can_view_alerts": true,
+    "can_view_reports": true,
+    "can_view_trends": true,
+    "mobile_number": null,
+    "invitation_token": "24a2f24e-1b75-4f7c-acfa-cef5da66794d",
+    "created_at": "2026-05-18T10:41:29.191Z",
+    "updated_at": "2026-06-08T06:11:15.886Z"
+  }
+},
+{
+  "model": "api.caregivermaster",
+  "pk": 16,
+  "fields": {
+    "user": "INNOIQCGM00011",
+    "full_name": "Atish Katore",
+    "email_id": "atish.katore@innoiq.in",
+    "relationship": "Friend",
+    "status": "REMOVED",
+    "can_view_glucose": true,
+    "can_view_alerts": true,
+    "can_view_reports": true,
+    "can_view_trends": true,
+    "mobile_number": null,
+    "invitation_token": "ac46b441-2e34-4065-9141-9d6c006b2ae5",
+    "created_at": "2026-05-18T10:50:25.875Z",
+    "updated_at": "2026-06-08T06:03:09.020Z"
+  }
+},
+{
+  "model": "api.caregivermaster",
+  "pk": 17,
+  "fields": {
+    "user": "INNOIQCGM00011",
+    "full_name": "waghmare",
+    "email_id": "harsh.dhage@innoiq.in",
+    "relationship": "friend",
+    "status": "REMOVED",
+    "can_view_glucose": true,
+    "can_view_alerts": true,
+    "can_view_reports": true,
+    "can_view_trends": true,
+    "mobile_number": null,
+    "invitation_token": "6e488fc2-7c8b-457d-a412-d321e981bba0",
+    "created_at": "2026-05-20T10:02:46.736Z",
+    "updated_at": "2026-06-08T06:07:22.469Z"
+  }
+},
+{
+  "model": "api.caregivermaster",
+  "pk": 18,
+  "fields": {
+    "user": "INNOIQCGM00012",
+    "full_name": "Harsh ",
+    "email_id": "harsh.dhage@innoiq.in",
+    "relationship": "friend",
+    "status": "PENDING",
+    "can_view_glucose": true,
+    "can_view_alerts": true,
+    "can_view_reports": true,
+    "can_view_trends": true,
+    "mobile_number": null,
+    "invitation_token": "46c566fe-72a7-400d-8ce8-634a495e377e",
+    "created_at": "2026-05-20T10:03:41.143Z",
+    "updated_at": "2026-05-20T10:03:41.143Z"
+  }
+},
+{
+  "model": "api.caregivermaster",
+  "pk": 19,
+  "fields": {
+    "user": "INNOIQCGM00016",
+    "full_name": "Harsh",
+    "email_id": "harsh.dhage@innoiq.in",
+    "relationship": "friend",
+    "status": "PENDING",
+    "can_view_glucose": true,
+    "can_view_alerts": true,
+    "can_view_reports": true,
+    "can_view_trends": true,
+    "mobile_number": "9850643156",
+    "invitation_token": "3784d713-86e8-4aab-8e0b-50af4aa6e5a1",
+    "created_at": "2026-06-03T05:51:09.205Z",
+    "updated_at": "2026-06-03T05:51:09.205Z"
+  }
+},
+{
+  "model": "api.caregivermaster",
+  "pk": 20,
+  "fields": {
+    "user": "INNOIQCGM00020",
+    "full_name": "Harsh",
+    "email_id": "harsh.dhage@innoiq.in",
+    "relationship": "friend",
+    "status": "PENDING",
+    "can_view_glucose": true,
+    "can_view_alerts": true,
+    "can_view_reports": true,
+    "can_view_trends": true,
+    "mobile_number": "9850643156",
+    "invitation_token": "35f45408-4dcf-4287-b229-44068b13dab0",
+    "created_at": "2026-06-03T05:57:00.478Z",
+    "updated_at": "2026-06-03T05:57:00.478Z"
+  }
+},
+{
+  "model": "api.caregivermaster",
+  "pk": 21,
+  "fields": {
+    "user": "INNOIQCGM00020",
+    "full_name": "Harsh",
+    "email_id": "deepali.waghmare@innoiq.in",
+    "relationship": "friend",
+    "status": "PENDING",
+    "can_view_glucose": true,
+    "can_view_alerts": true,
+    "can_view_reports": true,
+    "can_view_trends": true,
+    "mobile_number": "9850643156",
+    "invitation_token": "05eae8a7-afb1-4bb5-b7c3-3d9111ecfec4",
+    "created_at": "2026-06-03T05:57:36.841Z",
+    "updated_at": "2026-06-03T05:57:36.841Z"
+  }
+},
+{
+  "model": "api.caregivermaster",
+  "pk": 22,
+  "fields": {
+    "user": "INNOIQCGM00017",
+    "full_name": "Harsh",
+    "email_id": "deepali.waghmare@innoiq.in",
+    "relationship": "friend",
+    "status": "PENDING",
+    "can_view_glucose": true,
+    "can_view_alerts": true,
+    "can_view_reports": true,
+    "can_view_trends": true,
+    "mobile_number": "9850643156",
+    "invitation_token": "fc5c25c7-4ee7-4819-9532-3351e04664ff",
+    "created_at": "2026-06-03T05:59:51.686Z",
+    "updated_at": "2026-06-03T05:59:51.686Z"
+  }
+},
+{
+  "model": "api.caregivermaster",
+  "pk": 23,
+  "fields": {
+    "user": "INNOIQCGM00013",
+    "full_name": "Harsh",
+    "email_id": "deepali.waghmare@innoiq.in",
+    "relationship": "friend",
+    "status": "PENDING",
+    "can_view_glucose": true,
+    "can_view_alerts": true,
+    "can_view_reports": true,
+    "can_view_trends": true,
+    "mobile_number": "9850643156",
+    "invitation_token": "1b1e20a4-64a9-445e-8212-ca2c876d21d2",
+    "created_at": "2026-06-03T06:00:43.757Z",
+    "updated_at": "2026-06-03T06:00:43.757Z"
+  }
+},
+{
+  "model": "api.caregivermaster",
+  "pk": 24,
+  "fields": {
+    "user": "INNOIQCGM00020",
+    "full_name": "Meena Sharma",
+    "email_id": "meena@email.com",
+    "relationship": "Parent",
+    "status": "ACTIVE",
+    "can_view_glucose": true,
+    "can_view_alerts": true,
+    "can_view_reports": true,
+    "can_view_trends": true,
+    "mobile_number": "9123456789",
+    "invitation_token": "eefbd76a-4558-4848-868a-19c8138d854a",
+    "created_at": "2026-06-04T06:07:14.443Z",
+    "updated_at": "2026-06-04T06:11:39.613Z"
+  }
+},
+{
+  "model": "api.caregivermaster",
+  "pk": 25,
+  "fields": {
+    "user": "INNOIQCGM00017",
+    "full_name": "Meena Sharma",
+    "email_id": "meena@email.com",
+    "relationship": "Parent",
+    "status": "PENDING",
+    "can_view_glucose": true,
+    "can_view_alerts": true,
+    "can_view_reports": true,
+    "can_view_trends": true,
+    "mobile_number": "9123456789",
+    "invitation_token": "bb4d0436-29c9-4120-b42f-a2a27d52101f",
+    "created_at": "2026-06-04T07:28:55.904Z",
+    "updated_at": "2026-06-04T07:28:55.904Z"
+  }
+},
+{
+  "model": "api.termsandconditions",
+  "pk": 3,
+  "fields": {
+    "type": "IFU",
+    "terms_content": null,
+    "ifu_content": [
+      {
+        "icon": "warning",
+        "header": "Important Safety Information",
+        "text": "Read all instructions carefully before applying the sensor. Failure to follow these instructions may result in inaccurate readings or device failure.",
+        "bullets": []
+      },
+      {
+        "icon": "target",
+        "header": "Intended Use",
+        "text": "The GlucoTrack Continuous Glucose Monitoring System is intended for the management of diabetes in persons age 2 years and older. The device measures glucose levels continuously and displays results on your smartphone.",
+        "bullets": []
+      },
+      {
+        "icon": "location",
+        "header": "Application Site",
+        "text": "",
+        "bullets": [
+          "Apply sensor to the back of the upper arm",
+          "Choose an area with adequate subcutaneous fat",
+          "Avoid areas with scars, moles, stretch marks, or lumps",
+          "Rotate application sites between arms",
+          "Do not apply over tattoos or irritated skin",
+          "Clean the skin with an alcohol swab before application",
+          "Monitor skin condition regularly for any adverse reactions"
+        ]
+      }
+    ],
+    "terms_confirmation_text": null,
+    "ifu_confirmation_text": "I confirm that I have read and understood the sensor placement instructions",
+    "version": 1,
+    "is_active": false,
+    "created_at": "2026-05-20T06:27:32.534Z",
+    "updated_at": "2026-05-20T06:27:32.534Z"
+  }
+},
+{
+  "model": "api.termsandconditions",
+  "pk": 4,
+  "fields": {
+    "type": "TERMS",
+    "terms_content": [
+      {
+        "header": "Overview",
+        "text": "The website and services are operated by LinX CGM. By using the website or purchasing products/services, users agree to the Terms of Service."
+      },
+      {
+        "header": "User Responsibilities",
+        "text": "Users must be of legal age in their jurisdiction. The service cannot be used for illegal or unauthorized purposes. Uploading malicious code, viruses, or harmful content is prohibited. Violation of terms may result in immediate termination of services."
+      },
+      {
+        "header": "Prohibited Uses",
+        "text": "Users may not violate laws or regulations, infringe intellectual property rights, harass or discriminate against others, upload malware or harmful code, collect others' personal information, or attempt phishing, scraping, or spamming activities."
+      },
+      {
+        "header": "Disclaimer of Warranties",
+        "text": "Services are provided as is and as available. No guarantee is provided for uninterrupted, secure, or error-free service. Results obtained from the service may not always be accurate or reliable."
+      },
+      {
+        "header": "Limitation of Liability",
+        "text": "LinX CGM is not liable for data loss, lost profits or revenue, service interruptions, or indirect or consequential damages arising from use of the service."
+      },
+      {
+        "header": "Termination",
+        "text": "Users may stop using the service anytime. LinX CGM may terminate access if terms are violated."
+      },
+      {
+        "header": "Governing Law",
+        "text": "The Terms of Service are governed by the laws of Egypt."
+      },
+      {
+        "header": "Purpose of the App",
+        "text": "The app is designed to help users monitor and manage their glucose levels continuously using a wearable sensor device."
+      }
+    ],
+    "ifu_content": null,
+    "terms_confirmation_text": "I confirm that I have read and understood the Terms and Privacy Policy",
+    "ifu_confirmation_text": null,
+    "version": 1,
+    "is_active": true,
+    "created_at": "2026-05-20T06:32:59.676Z",
+    "updated_at": "2026-05-20T06:32:59.676Z"
+  }
+},
+{
+  "model": "api.userconsent",
+  "pk": 1,
+  "fields": {
+    "user": "INNOIQCGM00010",
+    "terms": 4,
+    "is_terms_accepted": true,
+    "is_ifu_accepted": true,
+    "terms_accepted_at": null,
+    "ifu_accepted_at": "2026-05-21T06:08:06.134Z",
+    "created_at": "2026-05-20T09:47:59.780Z",
+    "updated_at": "2026-05-21T06:08:33.617Z"
+  }
+},
+{
+  "model": "api.userconsent",
+  "pk": 2,
+  "fields": {
+    "user": "INNOIQCGM00011",
+    "terms": 4,
+    "is_terms_accepted": false,
+    "is_ifu_accepted": true,
+    "terms_accepted_at": null,
+    "ifu_accepted_at": "2026-05-21T06:08:19.160Z",
+    "created_at": "2026-05-21T06:08:19.164Z",
+    "updated_at": "2026-05-21T06:08:19.164Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 1,
+  "fields": {
+    "user": "INNOIQCGM00005",
+    "device": 6,
+    "action": "DEVICE_ADDED",
+    "reason": "Device paired successfully",
+    "additional_notes": null,
+    "timestamp": "2026-05-22T10:28:07.350Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 2,
+  "fields": {
+    "user": "INNOIQCGM00005",
+    "device": 7,
+    "action": "DEVICE_ADDED",
+    "reason": "Device paired successfully",
+    "additional_notes": null,
+    "timestamp": "2026-05-22T10:28:23.531Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 3,
+  "fields": {
+    "user": "INNOIQCGM00005",
+    "device": 6,
+    "action": "DEVICE_REMOVED",
+    "reason": "Other",
+    "additional_notes": "Urgent Surgery",
+    "timestamp": "2026-05-22T10:46:55.810Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 4,
+  "fields": {
+    "user": "INNOIQCGM00011",
+    "device": null,
+    "action": "CAREGIVER_REMOVED",
+    "reason": "Caregiver Sarah Johnson removed by user INNOIQCGM00011",
+    "additional_notes": null,
+    "timestamp": "2026-06-08T06:11:15.911Z"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 1,
+  "fields": {
+    "action_time": "2026-05-18T10:34:40.191Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "caregivermaster"
+    ],
+    "object_id": "5",
+    "object_repr": "INNOIQCGM00013 - Sarah Johnson (Spouse)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 2,
+  "fields": {
+    "action_time": "2026-05-18T10:34:40.191Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "caregivermaster"
+    ],
+    "object_id": "4",
+    "object_repr": "INNOIQCGM00012 - Sarah Johnson (Spouse)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 3,
+  "fields": {
+    "action_time": "2026-05-18T10:34:40.192Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "caregivermaster"
+    ],
+    "object_id": "3",
+    "object_repr": "INNOIQCGM00014 - Sarah Johnson (Spouse)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 4,
+  "fields": {
+    "action_time": "2026-05-18T10:34:40.192Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "caregivermaster"
+    ],
+    "object_id": "2",
+    "object_repr": "INNOIQCGM00014 - Sarah Johnson (Spouse)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 5,
+  "fields": {
+    "action_time": "2026-05-18T10:34:40.192Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "caregivermaster"
+    ],
+    "object_id": "1",
+    "object_repr": "INNOIQCGM00010 - Atish Katore (Siblings)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 6,
+  "fields": {
+    "action_time": "2026-05-18T10:35:17.887Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "caregivermaster"
+    ],
+    "object_id": "12",
+    "object_repr": "INNOIQCGM00005 - Sarah Johnson (Spouse)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 7,
+  "fields": {
+    "action_time": "2026-05-18T10:35:17.887Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "caregivermaster"
+    ],
+    "object_id": "11",
+    "object_repr": "INNOIQCGM00007 - Sarah Johnson (Spouse)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 8,
+  "fields": {
+    "action_time": "2026-05-18T10:35:17.887Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "caregivermaster"
+    ],
+    "object_id": "10",
+    "object_repr": "INNOIQCGM00008 - Sarah Johnson (Spouse)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 9,
+  "fields": {
+    "action_time": "2026-05-18T10:35:17.887Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "caregivermaster"
+    ],
+    "object_id": "9",
+    "object_repr": "INNOIQCGM00009 - Sarah Johnson (Spouse)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 10,
+  "fields": {
+    "action_time": "2026-05-18T10:35:17.887Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "caregivermaster"
+    ],
+    "object_id": "8",
+    "object_repr": "INNOIQCGM00015 - Sarah Johnson (Spouse)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 11,
+  "fields": {
+    "action_time": "2026-05-18T10:35:17.887Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "caregivermaster"
+    ],
+    "object_id": "7",
+    "object_repr": "INNOIQCGM00010 - Sarah Johnson (Spouse)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 12,
+  "fields": {
+    "action_time": "2026-05-18T10:35:17.887Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "caregivermaster"
+    ],
+    "object_id": "6",
+    "object_repr": "INNOIQCGM00011 - Sarah Johnson (Spouse)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 13,
+  "fields": {
+    "action_time": "2026-05-18T10:40:39.862Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "caregivermaster"
+    ],
+    "object_id": "14",
+    "object_repr": "INNOIQCGM00011 - Sarah Johnson (Spouse)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 14,
+  "fields": {
+    "action_time": "2026-05-18T10:40:39.862Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "caregivermaster"
+    ],
+    "object_id": "13",
+    "object_repr": "INNOIQCGM00010 - Sarah Johnson (Spouse)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 15,
+  "fields": {
+    "action_time": "2026-05-20T06:26:46.052Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "termsandconditions"
+    ],
+    "object_id": "2",
+    "object_repr": "TermsAndConditions object (2)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 16,
+  "fields": {
+    "action_time": "2026-05-20T06:26:46.052Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "termsandconditions"
+    ],
+    "object_id": "1",
+    "object_repr": "TermsAndConditions object (1)",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 17,
+  "fields": {
+    "action_time": "2026-05-27T11:08:24.619Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "usermaster"
+    ],
+    "object_id": "INNOIQCGM00018",
+    "object_repr": "INNOIQCGM00018 - Deepali Waghmare",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Email id\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 18,
+  "fields": {
+    "action_time": "2026-05-27T11:47:09.212Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "usermaster"
+    ],
+    "object_id": "INNOIQCGM00018",
+    "object_repr": "INNOIQCGM00018 - Deepali Waghmare",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Email id\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 19,
+  "fields": {
+    "action_time": "2026-05-28T05:31:23.196Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "usermaster"
+    ],
+    "object_id": "INNOIQCGM00016",
+    "object_repr": "INNOIQCGM00016 - Deepali Waghmare",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Email id\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 20,
+  "fields": {
+    "action_time": "2026-05-28T05:35:59.908Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "usermaster"
+    ],
+    "object_id": "INNOIQCGM00019",
+    "object_repr": "INNOIQCGM00019 - Harsh Dhage",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 21,
+  "fields": {
+    "action_time": "2026-05-28T07:15:06.895Z",
+    "user": [
+      "admin"
+    ],
+    "content_type": [
+      "api",
+      "usermaster"
+    ],
+    "object_id": "INNOIQCGM00018",
+    "object_repr": "INNOIQCGM00018 - Nandu Bankar",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"First name\", \"Middle name\", \"Last name\"]}}]"
+  }
+}
+]
+

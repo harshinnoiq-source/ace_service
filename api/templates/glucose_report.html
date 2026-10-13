@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Glucose Report</title>
+    <style>
+        body { font-family: Arial; background: #f4f4f4; margin: 20px; }
+        .profile { display: flex; align-items: center; margin-bottom: 20px; }
+        .profile img { border-radius: 50%; width: 100px; height: 100px; margin-right: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
+        th { background: #235F5A; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="profile">
+    <img id="profilePic" src="" alt="Profile Picture"/>
+    <div>
+        <h2 id="fullName"></h2>
+        <p id="dobGender"></p>
+        <p id="contact"></p>
+    </div>
+</div>
+
+<h3>Glucose Log</h3>
+<table>
+    <thead>
+    <tr>
+        <th>Timestamp</th>
+        <th>Glucose Value</th>
+        <th>Note</th>
+    </tr>
+    </thead>
+    <tbody id="logTable">
+    </tbody>
+</table>
+
+<script>
+    const reportData = {{ report_json|safe }};
+
+    // Set profile info
+    document.getElementById('profilePic').src = reportData.user.profile_picture || '';
+    document.getElementById('fullName').innerText = `${reportData.user.first_name} ${reportData.user.middle_name || ''} ${reportData.user.last_name}`;
+    document.getElementById('dobGender').innerText = `${reportData.user.dob} | ${reportData.user.gender}`;
+    document.getElementById('contact').innerText = `${reportData.user.mobile_number} | ${reportData.user.address}`;
+
+    // Populate glucose logs
+    const logTable = document.getElementById('logTable');
+    reportData.logs.forEach(log => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${log.timestamp}</td><td>${log.glucose_value}</td><td>${log.note || ''}</td>`;
+        logTable.appendChild(tr);
+    });
+</script>
+
+</body>
+</html>

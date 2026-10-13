@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #d32f2f;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: #444;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #d32f2f;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        .btn-delete {
+            width: 100%;
+            padding: 12px;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .btn-delete:hover {
+            background: #b71c1c;
+        }
+
+        .error {
+            background: #fdecea;
+            color: #c62828;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .warning-box {
+            background: #fff8e1;
+            border-left: 4px solid #f9a825;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        /* user info box */
+        .user-info {
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+        }
+
+        .user-info p {
+            font-size: 14px;
+            color: #444;
+            margin-bottom: 4px;
+        }
+
+        .user-info p:last-child {
+            margin-bottom: 0;
+            color: #888;
+            font-size: 13px;
+        }
+
+        .success-icon {
+            font-size: 60px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .success-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2e7d32;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .success-msg {
+            font-size: 14px;
+            color: #555;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .optional-tag {
+            font-size: 11px;
+            color: #999;
+            font-weight: 400;
+            margin-left: 4px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+
+    {% if success %}
+    <!-- SUCCESS SCREEN -->
+    <div class="success-icon">✅</div>
+    <div class="success-title">Account Deleted</div>
+    <p class="success-msg">
+        Your account has been permanently deleted.<br>
+        All your data has been removed from our system.
+    </p>
+
+    {% elif error and not user %}
+    <!-- INVALID LINK -->
+    <div class="title">Invalid Link</div>
+    <p class="error">{{ error }}</p>
+
+    {% else %}
+    <!-- DELETE FORM -->
+    <div class="title">Delete Account</div>
+    <p class="subtitle">This action is permanent and cannot be recovered.</p>
+
+    <div class="warning-box">
+        ⚠️ All your data including glucose logs, devices and caregivers
+        will be permanently deleted.
+    </div>
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- hidden fields -->
+        <input type="hidden" name="user_id" value="{{ user.user_id }}">
+        <input type="hidden" name="email_id" value="{{ email_id }}">
+
+        <!-- user info display -->
+        <div class="user-info">
+            <p><strong>{{ full_name }}</strong></p>
+        </div>
+
+        <!-- password -->
+        <div class="form-group">
+            <label>Password</label>
+            <input
+                    type="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+            />
+        </div>
+
+        <!-- reason optional -->
+        <div class="form-group">
+            <label>
+                Reason
+                <span class="optional-tag">(optional)</span>
+            </label>
+            <textarea
+                    name="reason"
+                    placeholder="Tell us why you are leaving..."
+                    rows="3"
+            ></textarea>
+        </div>
+
+        <button type="submit" class="btn-delete">
+            Delete My Account
+        </button>
+    </form>
+    {% endif %}
+
+</div>
+</body>
+</html>

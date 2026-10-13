@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accept Caregiver Invitation</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f4f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 36px 32px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+            text-align: center;
+        }
+
+        .logo {
+            width: 64px;
+            height: 64px;
+            background: #2E7D32;
+            border-radius: 16px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #1a1a1a;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #555;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .permissions {
+            background: #f8fdf8;
+            border: 1px solid #c8e6c9;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 28px;
+            text-align: left;
+        }
+
+        .permissions p {
+            font-weight: bold;
+            color: #2E7D32;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .permissions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .permissions ul li {
+            padding: 4px 0;
+            color: #444;
+            font-size: 14px;
+        }
+
+        .permissions ul li::before {
+            content: "✅  ";
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px 0;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover { opacity: 0.88; }
+
+        .btn-green {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-android {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .btn-ios {
+            background: #0a84ff;
+            color: white;
+        }
+
+        .divider {
+            color: #aaa;
+            font-size: 13px;
+            margin: 16px 0 6px;
+        }
+
+        #download-section { display: none; }
+
+        .footer {
+            margin-top: 24px;
+            color: #aaa;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+
+    <div class="logo">💚</div>
+
+    <h2>Caregiver Invitation</h2>
+    <p class="subtitle">
+        <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+        has invited <strong>{{ caregiver.full_name }}</strong>
+        to monitor their glucose data on <strong>InnoIQ CGM</strong>.
+    </p>
+
+    <div class="permissions">
+        <p>You will have access to:</p>
+        <ul>
+            {% if caregiver.can_view_glucose %}<li>Real-time glucose</li>{% endif %}
+            {% if caregiver.can_view_alerts  %}<li>Alerts</li>{% endif %}
+            {% if caregiver.can_view_reports %}<li>Reports</li>{% endif %}
+            {% if caregiver.can_view_trends  %}<li>Trends</li>{% endif %}
+        </ul>
+    </div>
+
+    <!-- Primary CTA: open app via deep link -->
+    <a href="{{ app_deep_link }}" class="btn btn-green" id="open-app-btn">
+        Open in InnoIQ CGM App
+    </a>
+
+    <!-- Shown after 2s if app is not installed -->
+    <div id="download-section">
+        <p class="divider">Don't have the app yet? Download it here:</p>
+        <a href="https://play.google.com/store/apps/details?id=com.ace.projectx" class="btn btn-android">
+            ▶&nbsp; Get it on Google Play
+        </a>
+        <a href="{{ app_store_url }}" class="btn btn-ios">
+            &nbsp; Download on App Store
+        </a>
+    </div>
+
+    <p class="footer">
+        This invitation was sent to {{ caregiver.email_id }}.<br>
+        If you did not expect this, you can safely ignore it.
+    </p>
+
+</div>
+
+<script>
+    // Try to open the app via deep link
+    window.location.href = "{{ app_deep_link }}";
+
+    // After 2 seconds, if app didn't open, show download buttons
+    setTimeout(function () {
+        document.getElementById('open-app-btn').style.display = 'none';
+        document.getElementById('download-section').style.display = 'block';
+    }, 2000);
+</script>
+</body>
+</html>

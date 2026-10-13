@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Upload</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f4f8;
+            padding: 30px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #1a237e;
+            margin-bottom: 30px;
+        }
+
+        .slots-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .slot-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 20px;
+            width: 300px;
+        }
+
+        .slot-card h3 {
+            color: #1a237e;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .preview-area {
+            width: 100%;
+            height: 180px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 2px dashed #ddd;
+        }
+
+        .preview-area img,
+        .preview-area video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .preview-area .empty-text {
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        .file-input { display: none; }
+
+        .field-label {
+            font-size: 12px;
+            color: #5c6bc0;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            border: 1px solid #c5cae9;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1a237e;
+            background: #f8f9ff;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .field-input:focus {
+            border-color: #1a237e;
+            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.15);
+            background: #fff;
+        }
+
+        .field-input::placeholder { color: #9fa8da; }
+
+        .field-input::-webkit-inner-spin-button,
+        .field-input::-webkit-outer-spin-button { opacity: 1; }
+
+        .btn-select {
+            width: 100%;
+            padding: 10px;
+            background: #e8eaf6;
+            color: #1a237e;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+
+        .btn-select:hover { background: #c5cae9; }
+
+        .btn-save {
+            width: 100%;
+            padding: 10px;
+            background: #1a237e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+            display: none;
+        }
+
+        .btn-save:hover { background: #283593; }
+        .btn-save:disabled { background: #9fa8da; cursor: not-allowed; }
+
+        .status-msg {
+            margin-top: 10px;
+            font-size: 13px;
+            text-align: center;
+            min-height: 20px;
+        }
+
+        .success { color: green; }
+        .error { color: red; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal-box h3 {
+            color: #1a237e;
+            margin-bottom: 15px;
+        }
+
+        .crop-container {
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .crop-container img { max-width: 100%; }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-crop-confirm {
+            flex: 1;
+            padding: 10px;
+            background: #1a237e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-crop-cancel {
+            flex: 1;
+            padding: 10px;
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>App Media Slots </h2>
+
+<div class="slots-container">
+    {% for slot in slots %}
+    <div class="slot-card" id="slot-card-{{ slot.order }}">
+        <h3>Slot {{ slot.order }}</h3>
+
+        <div class="preview-area" id="preview-{{ slot.order }}">
+            {% if slot.file %}
+            {% if slot.type == 'Image' or slot.type == 'image' %}
+            <img src="{{ slot.file.url }}" alt="Slot {{ slot.order }}"/>
+            {% elif slot.type == 'Video' or slot.type == 'video' %}
+            <video src="{{ slot.file.url }}" controls></video>
+            {% endif %}
+            {% else %}
+            <span class="empty-text">No file uploaded</span>
+            {% endif %}
+        </div>
+
+        <label class="field-label">Duration (seconds)</label>
+        <input
+                type="number"
+                class="field-input"
+                id="duration-{{ slot.order }}"
+                value="{{ slot.duration }}"
+                min="1"
+                placeholder="e.g. 5"
+        />
+
+        <label class="field-label">Label</label>
+        <input
+                type="text"
+                class="field-input"
+                id="label-{{ slot.order }}"
+                value="{{ slot.label|default:'' }}"
+                placeholder="e.g. Summer Sale"
+        />
+
+        <label class="field-label">Link (URL)</label>
+        <input
+                type="text"
+                class="field-input"
+                id="link-{{ slot.order }}"
+                value="{{ slot.link|default:'' }}"
+                placeholder="e.g. https://example.com"
+        />
+
+        <input type="file" class="file-input" id="file-{{ slot.order }}"
+               accept="image/*,video/*" onchange="handleFileSelect(event, {{ slot.order }})"/>
+
+        <button class="btn-select" onclick="document.getElementById('file-{{ slot.order }}').click()">
+            Select File
+        </button>
+
+        <button class="btn-save" id="save-btn-{{ slot.order }}"
+                onclick="uploadSlot({{ slot.order }})">
+            Save
+        </button>
+
+        <div class="status-msg" id="status-{{ slot.order }}"></div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Cropper Modal -->
+<div class="modal-overlay" id="cropModal">
+    <div class="modal-box">
+        <h3>Crop Image</h3>
+        <div class="crop-container">
+            <img id="cropImage" src="" alt="crop"/>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-crop-cancel" onclick="cancelCrop()">Cancel</button>
+            <button class="btn-crop-confirm" onclick="confirmCrop()">Crop & Confirm</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+    const slotFiles = {};
+    const slotTypes = {};
+    let currentCropSlot = null;
+    let cropperInstance = null;
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return '';
+    }
+
+    function handleFileSelect(event, order) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (file.size > 10 * 1024 * 1024) {
+            showStatus(order, 'File size must not exceed 10 MB.', 'error');
+            event.target.value = '';
+            return;
+        }
+
+        const isImage = file.type.startsWith('image/');
+        const isVideo = file.type.startsWith('video/');
+
+        if (!isImage && !isVideo) {
+            showStatus(order, 'Only image or video files allowed.', 'error');
+            event.target.value = '';
+            return;
+        }
+
+        if (isImage) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                openCropModal(e.target.result, order);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            slotFiles[order] = file;
+            slotTypes[order] = 'Video';
+            showVideoPreview(order, file);
+            document.getElementById(`save-btn-${order}`).style.display = 'block';
+            showStatus(order, '', '');
+        }
+    }
+
+    function openCropModal(imageSrc, order) {
+        currentCropSlot = order;
+        const cropImage = document.getElementById('cropImage');
+        cropImage.src = imageSrc;
+
+        document.getElementById('cropModal').classList.add('active');
+
+        if (cropperInstance) cropperInstance.destroy();
+
+        cropperInstance = new Cropper(cropImage, {
+            aspectRatio: NaN,
+            viewMode: 1,
+        });
+    }
+
+    function cancelCrop() {
+        document.getElementById('cropModal').classList.remove('active');
+        if (cropperInstance) {
+            cropperInstance.destroy();
+            cropperInstance = null;
+        }
+        if (currentCropSlot) {
+            document.getElementById(`file-${currentCropSlot}`).value = '';
+        }
+        currentCropSlot = null;
+    }
+
+    function confirmCrop() {
+        if (!cropperInstance || !currentCropSlot) return;
+
+        cropperInstance.getCroppedCanvas().toBlob(function(blob) {
+            const order = currentCropSlot;
+            slotFiles[order] = blob;
+            slotTypes[order] = 'Image';
+
+            const url = URL.createObjectURL(blob);
+            const preview = document.getElementById(`preview-${order}`);
+            preview.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;"/>`;
+
+            document.getElementById(`save-btn-${order}`).style.display = 'block';
+            showStatus(order, '', '');
+
+            document.getElementById('cropModal').classList.remove('active');
+            cropperInstance.destroy();
+            cropperInstance = null;
+            currentCropSlot = null;
+        }, 'image/jpeg');
+    }
+
+    function showVideoPreview(order, file) {
+        const url = URL.createObjectURL(file);
+        const preview = document.getElementById(`preview-${order}`);
+        preview.innerHTML = `<video src="${url}" controls style="width:100%;height:100%;border-radius:8px;"></video>`;
+    }
+
+    function uploadSlot(order) {
+        const file = slotFiles[order];
+        const type = slotTypes[order];
+
+        if (!file) {
+            showStatus(order, 'No file selected.', 'error');
+            return;
+        }
+
+        const duration = parseInt(document.getElementById(`duration-${order}`).value) || 5;
+        const label = document.getElementById(`label-${order}`).value.trim();
+        const link = document.getElementById(`link-${order}`).value.trim();
+
+        if (duration < 1) {
+            showStatus(order, 'Duration must be at least 1 second.', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('order', order);
+        formData.append('type', type);
+        formData.append('duration', duration);
+        formData.append('label', label);
+        formData.append('link', link);
+
+        if (type === 'Image') {
+            formData.append('file', file, `slot_${order}.jpg`);
+        } else {
+            formData.append('file', file, file.name);
+        }
+
+        showStatus(order, 'Uploading...', '');
+        document.getElementById(`save-btn-${order}`).disabled = true;
+
+        fetch('/api/app-media/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: formData,
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.message || `Server error: ${res.status}`); });
+                }
+                return res.json();
+            })
+            .then(data => {
+                console.log('Upload response:', data);
+                if (data.status === 'success') {
+                    showStatus(order, 'Uploaded successfully!', 'success');
+                    document.getElementById(`save-btn-${order}`).style.display = 'none';
+                    delete slotFiles[order];
+                    delete slotTypes[order];
+                } else {
+                    showStatus(order, data.message || 'Upload failed.', 'error');
+                }
+                document.getElementById(`save-btn-${order}`).disabled = false;
+            })
+            .catch(err => {
+                console.error('Upload error:', err);
+                showStatus(order, err.message || 'Network error.', 'error');
+                document.getElementById(`save-btn-${order}`).disabled = false;
+            });
+    }
+
+    function showStatus(order, message, type) {
+        const el = document.getElementById(`status-${order}`);
+        el.textContent = message;
+        el.className = `status-msg ${type}`;
+    }
+</script>
+
+</body>
+</html>

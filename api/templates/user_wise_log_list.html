@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>User Wise Glucose Logs</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .filter-box {
+            width: 90%;
+            margin: auto;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-box input, .filter-box button {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        .filter-box button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .filter-box button:hover {
+            background: #357abd;
+        }
+
+        .table-container {
+            width: 90%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th {
+            background: #4a90e2;
+            color: white;
+            padding: 12px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+
+        tr:hover {
+            background: #f1f7ff;
+        }
+
+        .note-col {
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        /* 🔥 PAGINATION STYLE (MATCH SCREENSHOT) */
+        .pagination {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .pagination a, .pagination span {
+            display: inline-block;
+            margin: 6px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 15px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .pagination a {
+            background: #4a90e2;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .pagination a:hover {
+            background: #357abd;
+        }
+
+        .pagination .active {
+            background: #222;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>User Wise Glucose Logs</h1>
+
+<!-- ✅ SERVER SIDE FILTER -->
+<div class="filter-box">
+    <form method="get" style="display:flex; gap:10px;">
+        <input type="text" name="user_id" placeholder="Enter User ID"
+               value="{{ user_id|default:'' }}">
+        <button type="submit">Search</button>
+        <a href="/userwiselogs/">
+            <button type="button">Reset</button>
+        </a>
+    </form>
+</div>
+
+<div class="table-container">
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>User ID</th>
+            <th>Glucose</th>
+            <th>Amp</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Note</th>
+            <th>Device ID</th>
+        </tr>
+
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.id }}</td>
+            <td>{{ log.user.user_id }}</td>
+            <td>{{ log.glucose_value }}</td>
+            <td>{{ log.amp }}</td>
+            <td>{{ log.timestamp|date:"Y-m-d" }}</td>
+            <td>{{ log.timestamp|date:"H:i:s" }}</td>
+            <td class="note-col">{{ log.note }}</td>
+            <td class="note-col">{{ log.deviceid }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- 🔥 PERFECT PAGINATION -->
+<div class="pagination">
+
+    {% if logs.has_previous %}
+    <a href="?page=1{% if user_id %}&user_id={{ user_id }}{% endif %}">« First</a>
+    <a href="?page={{ logs.previous_page_number }}{% if user_id %}&user_id={{ user_id }}{% endif %}">‹ Prev</a>
+    {% endif %}
+
+    {% for num in logs.paginator.page_range %}
+    {% if num >= logs.number|add:'-2' and num <= logs.number|add:'2' %}
+
+    {% if num == logs.number %}
+    <span class="active">{{ num }}</span>
+    {% else %}
+    <a href="?page={{ num }}{% if user_id %}&user_id={{ user_id }}{% endif %}">
+        {{ num }}
+    </a>
+    {% endif %}
+
+    {% endif %}
+    {% endfor %}
+
+    {% if logs.has_next %}
+    <a href="?page={{ logs.next_page_number }}{% if user_id %}&user_id={{ user_id }}{% endif %}">Next ›</a>
+    <a href="?page={{ logs.paginator.num_pages }}{% if user_id %}&user_id={{ user_id }}{% endif %}">Last »</a>
+    {% endif %}
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Opening app…</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:Roboto,Arial,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;min-height:100vh;">
+    <tr>
+        <td align="center">
+            <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;">
+
+                <!-- App name -->
+                <tr>
+                    <td align="center" style="padding-bottom:24px;">
+                        <span style="font-size:22px;font-weight:700;color:#1a1a2e;letter-spacing:-0.5px;">
+                            {{ app_name|default:"CGM App" }}
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Card -->
+                <tr>
+                    <td style="background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 36px;">
+                        <table width="100%" cellpadding="0" cellspacing="0">
+
+                            <!-- Icon -->
+                            <tr>
+                                <td align="center" style="padding-bottom:24px;">
+                                    <div id="icon-wrap" style="width:64px;height:64px;background:#EEF2FF;border-radius:50%;
+                                display:inline-flex;align-items:center;justify-content:center;">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                             xmlns="http://www.w3.org/2000/svg">
+                                            <rect x="5" y="11" width="14" height="10" rx="2"
+                                                  fill="#4F46E5" opacity="0.15"/>
+                                            <rect x="5" y="11" width="14" height="10" rx="2"
+                                                  stroke="#4F46E5" stroke-width="1.5"/>
+                                            <path d="M8 11V7a4 4 0 0 1 8 0v4"
+                                                  stroke="#4F46E5" stroke-width="1.5" stroke-linecap="round"/>
+                                            <circle cx="12" cy="16" r="1.5" fill="#4F46E5"/>
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Heading -->
+                            <tr>
+                                <td align="center" style="padding-bottom:8px;">
+                                    <h1 style="margin:0;font-size:22px;font-weight:700;
+                               color:#1a1a2e;line-height:1.3;">
+                                        Opening {{ app_name|default:"the app" }}…
+                                    </h1>
+                                </td>
+                            </tr>
+
+                            <!-- Body text -->
+                            <tr>
+                                <td align="center" style="padding-bottom:28px;">
+                                    <p style="margin:0;font-size:15px;color:#52525b;
+                               line-height:1.6;max-width:340px;">
+                                        We're redirecting you to reset your password.
+                                        If nothing happens automatically, tap the button below.
+                                    </p>
+                                </td>
+                            </tr>
+
+                            <!-- CTA -->
+                            <tr>
+                                <td align="center" style="padding-bottom:12px;">
+                                    <a id="open-app-btn" href="{{ deep_link }}"
+                                       style="display:inline-block;background:#4F46E5;color:#ffffff;
+                              font-size:16px;font-weight:600;text-decoration:none;
+                              padding:14px 40px;border-radius:10px;letter-spacing:0.2px;">
+                                        Open App
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <!-- Fallback note -->
+                            <tr>
+                                <td align="center" style="padding-bottom:8px;">
+                                    <p style="margin:0;font-size:12px;color:#a1a1aa;line-height:1.5;">
+                                        Don't have the app installed yet? Get it here:
+                                    </p>
+                                </td>
+                            </tr>
+
+                            <!-- Store badges -->
+                            <tr>
+                                <td align="center">
+                                    <table cellpadding="0" cellspacing="0">
+                                        <tr>
+                                            {% if play_store_url %}
+                                            <td style="padding:0 6px;">
+                                                <a href="{{ play_store_url }}"
+                                                   style="font-size:13px;color:#4F46E5;text-decoration:none;
+                                      font-weight:600;">
+                                                    Google Play
+                                                </a>
+                                            </td>
+                                            {% endif %}
+                                            {% if play_store_url and app_store_url %}
+                                            <td style="padding:0 6px;color:#e4e4e7;">|</td>
+                                            {% endif %}
+                                            {% if app_store_url %}
+                                            <td style="padding:0 6px;">
+                                                <a href="{{ app_store_url }}"
+                                                   style="font-size:13px;color:#4F46E5;text-decoration:none;
+                                      font-weight:600;">
+                                                    App Store
+                                                </a>
+                                            </td>
+                                            {% endif %}
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td align="center" style="padding-top:24px;">
+                        <p style="margin:0;font-size:12px;color:#a1a1aa;">
+                            © {{ year }} {{ app_name|default:"CGM App" }} · Need help?
+                            Contact support from the app.
+                        </p>
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+
+<script>
+    // Attempt to auto-open the app deep link on page load.
+    (function () {
+        var deepLink = "{{ deep_link|escapejs }}";
+        if (deepLink) {
+            window.location.href = deepLink;
+        }
+    })();
+</script>
+
+</body>
+</html>

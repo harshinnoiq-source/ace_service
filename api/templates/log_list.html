@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Glucose Log Entries</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .filter-box {
+            width: 90%;
+            margin: auto;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-box input, .filter-box button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        .filter-box button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .filter-box button:hover {
+            background: #357abd;
+        }
+
+        .table-container {
+            width: 90%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th {
+            background: #4a90e2;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e6e6e6;
+            color: #444;
+        }
+
+        tr:hover {
+            background: #f1f7ff;
+        }
+
+        .note-col {
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .pagination a, .pagination span {
+            display: inline-block;
+            margin: 4px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .pagination a {
+            background: #4a90e2;
+            color: white;
+        }
+
+        .pagination a:hover {
+            background: #357abd;
+        }
+
+        .pagination .active {
+            background: #222;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Glucose Log Entries</h1>
+
+<div class="filter-box">
+    <input type="text" id="userFilter" placeholder="Filter by User ID" onkeyup="filterTable()">
+    <input type="date" id="dateFilter" onchange="filterTable()">
+    <button onclick="resetFilters()">Reset</button>
+</div>
+
+<div class="table-container">
+    <table id="logTable">
+        <tr>
+            <th>ID</th>
+            <th>User ID</th>
+            <th>Glucose</th>
+            <th>Amp</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Note</th>
+            <th>Device ID</th>
+        </tr>
+
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.id }}</td>
+            <td>{{ log.user_id }}</td>
+            <td>{{ log.glucose_value }}</td>
+            <td>{{ log.amp }}</td>
+            <td>{{ log.timestamp|date:"Y-m-d" }}</td>
+            <td>{{ log.timestamp|date:"H:i:s" }}</td>
+            <td class="note-col">{{ log.note }}</td>
+            <td class="note-col">{{ log.deviceid }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- ✅ COMPACT PAGINATION -->
+<div class="pagination">
+
+    {% if logs.has_previous %}
+    <a href="?page=1">« First</a>
+    <a href="?page={{ logs.previous_page_number }}">‹ Prev</a>
+    {% endif %}
+
+    {% for num in logs.paginator.page_range %}
+    {% if num == logs.number %}
+    <span class="active">{{ num }}</span>
+    {% elif num > logs.number|add:'-3' and num < logs.number|add:'3' %}
+    <a href="?page={{ num }}">{{ num }}</a>
+    {% endif %}
+    {% endfor %}
+
+    {% if logs.has_next %}
+    <a href="?page={{ logs.next_page_number }}">Next ›</a>
+    <a href="?page={{ logs.paginator.num_pages }}">Last »</a>
+    {% endif %}
+
+</div>
+
+<script>
+    function filterTable() {
+
+        let userInput = document.getElementById("userFilter").value.toLowerCase();
+        let dateInput = document.getElementById("dateFilter").value;
+
+        let table = document.getElementById("logTable");
+        let rows = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < rows.length; i++) {
+
+            let userCell = rows[i].getElementsByTagName("td")[1];
+            let dateCell = rows[i].getElementsByTagName("td")[4];
+
+            if (!userCell || !dateCell) continue;
+
+            let userText = userCell.textContent.toLowerCase();
+            let rowDate = dateCell.textContent.trim();
+
+            let show = true;
+
+            if (userInput && !userText.includes(userInput)) {
+                show = false;
+            }
+
+            if (dateInput && rowDate !== dateInput) {
+                show = false;
+            }
+
+            rows[i].style.display = show ? "" : "none";
+        }
+    }
+
+    function resetFilters() {
+        document.getElementById("userFilter").value = "";
+        document.getElementById("dateFilter").value = "";
+        filterTable();
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Already Accepted</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f4f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 36px 32px;
+            max-width: 460px;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 56px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #2E7D32;
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            color: #555;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: bold;
+            margin-top: 24px;
+        }
+
+        .footer {
+            margin-top: 20px;
+            color: #aaa;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="icon">✅</div>
+    <h2>Already Accepted</h2>
+    <p>
+        You have already accepted the caregiver invitation for
+        <strong>{{ caregiver.user.first_name }} {{ caregiver.user.last_name }}</strong>.
+    </p>
+    <p style="margin-top:12px;">
+        Open the InnoIQ CGM app to view their glucose data.
+    </p>
+
+    <a href="innoiqcgm://home" class="btn">Open App</a>
+
+    <p class="footer">
+        If you have any issues, please contact support.
+    </p>
+</div>
+</body>
+</html>
