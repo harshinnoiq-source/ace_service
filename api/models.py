@@ -2,8 +2,9 @@ from django.db import models
 import re
 import uuid
 from api.validators import validate_phone_number
-
-
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.exceptions import ValidationError
+from django.db.models import Q
 def normalize_mobile_number(value):
     if not value:
         return value
@@ -68,8 +69,8 @@ class UserMaster(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     #emergency Details user
-    emergency_contact_number = models.CharField(max_length=20, null=True, blank=True)
-    emergency_contact_name = models.CharField(max_length=100, null=True, blank=True,validators=[validate_phone_number])
+    emergency_contact_number = models.CharField(max_length=20, null=True, blank=True,validators=[validate_phone_number])
+    emergency_contact_name = models.CharField(max_length=100, null=True, blank=True)
     emergency_contact_relation = models.CharField(max_length=50, null=True, blank=True)
     #firebase token
     firebase_token = models.TextField(null=True, blank=True)
@@ -410,4 +411,114 @@ class FAQItem(models.Model):
 
     def __str__(self):
         return f"{self.faq.title} -> {self.title or self.subtext[:20]}"
+
+
+#spiking feature questionaires table
+SPIKE_EVENT_CHOICES = [
+    ('LOW',  'Spiking Low'),     # glucose_value < 70
+    ('HIGH', 'Spiking High'),    # glucose_value > 180
+]
+
+
+class SpikeQuestion(models.Model):
+    question_id = models.CharField(max_length=100, unique=True)        # "low.activity_before"
+    event_type  = models.CharField(max_length=4, choices=SPIKE_EVENT_CHOICES, db_index=True)
+    question    = models.CharField(max_length=255)
+    desc        = models.CharField(max_length=255, blank=True, default='')
+    is_text_allow            = models.BooleanField(default=False)
+    is_multiple_choice_allow = models.BooleanField(default=False)
+    # Used for text-only and multi-select questions (options can't each branch there)
+    next_question = models.ForeignKey('self', null=True, blank=True,
+                                      on_delete=models.PROTECT, related_name='+')
+    is_follow_up = models.BooleanField(default=False)   # NEW: shown only after a specific answer
+    is_start  = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    order     = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'spike_question'
+        ordering = ['event_type', 'order', 'id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['event_type'],
+                condition=Q(is_start=True, is_active=True),
+                name='one_active_start_per_event',
+            ),
+        ]
+
+    def clean(self):
+        if self.next_question_id:
+            if self.pk and self.next_question_id == self.pk:
+                raise ValidationError("A question cannot point to itself.")
+            if self.next_question.event_type != self.event_type:
+                raise ValidationError("next_question must belong to the same event_type.")
+
+    def __str__(self):
+        return self.question_id
+
+
+class SpikeOption(models.Model):
+    option_id = models.CharField(max_length=150, unique=True)          # "low.activity_before.exercise"
+    question  = models.ForeignKey(SpikeQuestion, on_delete=models.CASCADE, related_name='options')
+    label     = models.CharField(max_length=255)
+    desc      = models.CharField(max_length=255, blank=True, default='')
+    # null = this answer ends the questionnaire ("Response Saved!")
+    next_question = models.ForeignKey(SpikeQuestion, null=True, blank=True,
+                                      on_delete=models.PROTECT, related_name='incoming_from_options')
+    icon_url = models.URLField(max_length=500, blank=True, default='')   # for the icon url (mobile side)
+    order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        db_table = 'spike_option'
+        ordering = ['order', 'id']
+
+    def clean(self):
+        if self.next_question_id:
+            if self.next_question_id == self.question_id:
+                raise ValidationError("An option cannot point back to its own question.")
+            if self.next_question.event_type != self.question.event_type:
+                raise ValidationError("next_question must belong to the same event_type.")
+
+    def __str__(self):
+        return self.option_id
+
+
+class SpikeResponse(models.Model):
+    log        = models.OneToOneField('LogEntry', on_delete=models.CASCADE, related_name='spike_response')
+    user       = models.ForeignKey('UserMaster', on_delete=models.CASCADE, related_name='spike_responses')
+    event_type = models.CharField(max_length=4, choices=SPIKE_EVENT_CHOICES)   # derived from glucose_value
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'spike_response'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user_id} | {self.event_type} | log {self.log_id}"
+
+
+class SpikeAnswer(models.Model):
+    response = models.ForeignKey(SpikeResponse, on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey(SpikeQuestion, on_delete=models.PROTECT)
+    selected_options = models.ManyToManyField(SpikeOption, blank=True)
+    text_answer   = models.TextField(null=True, blank=True)
+    # Snapshots: history stays correct even if admin edits question/option text later
+    question_text = models.CharField(max_length=255)
+    option_labels = models.JSONField(default=list, blank=True)
+    step          = models.PositiveSmallIntegerField()
+
+    class Meta:
+        db_table = 'spike_answer'
+        ordering = ['step']
+        constraints = [
+            models.UniqueConstraint(fields=['response', 'question'], name='one_answer_per_question'),
+        ]
+
+    def __str__(self):
+        return f"{self.response_id} | step {self.step} | {self.question.question_id}"
+
+
+
 

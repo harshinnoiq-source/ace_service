@@ -30,6 +30,8 @@ router.register(r'faq-items', FAQItemViewSet, basename='faq-items')  #faq items
 router.register(r'device-validate', StaticDeviceValidationViewSet, basename='device-static-validate')
 router.register(r'trends', TrendViewSet, basename='trend')
 router.register(r'insights', InsightsViewSet, basename='insights')
+router.register(r'spike/questions', SpikeQuestionViewSet, basename='spike-questions')   #spiking features
+router.register(r'spike/responses', SpikeResponseViewSet, basename='spike-responses')
 urlpatterns = [
     path('', include(router.urls)),
     path('version/', version_page, name='version-page'),

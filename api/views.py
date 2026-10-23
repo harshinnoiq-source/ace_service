@@ -21,7 +21,7 @@ from pyasn1.type.error import ValueConstraintError
 from requests.packages import target
 
 #DRF imports------------------
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets,mixins
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 #local imports
@@ -30,7 +30,7 @@ from django.db.models import Avg, Max, Min, Count, Q
 from django.db.models.functions import Round
 from django.db.models import FloatField
 from rest_framework.status import HTTP_404_NOT_FOUND
-
+from django.shortcuts import render, redirect
 from .models import *
 from .serializers import *
 
@@ -54,6 +54,8 @@ from django.utils.timezone import make_aware
 from .utils import generate_otp
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
+import secrets
+
 # Constants
 
 MEDIA_ADMIN_ID           = "admin"
@@ -71,7 +73,13 @@ from django.db.models.functions import ExtractHour
 # Version------
 LOW_GLUCOSE_THRESHOLD  = 70
 HIGH_GLUCOSE_THRESHOLD = 180
+EVENT_TYPES = ('LOW', 'HIGH')
 
+def get_user_thresholds(user):
+    pref = getattr(user, 'preference', None)   # related_name='preference'
+    low  = pref.target_range_low  if pref else LOW_GLUCOSE_THRESHOLD
+    high = pref.target_range_high if pref else HIGH_GLUCOSE_THRESHOLD
+    return low, high
 
 
 class VersionViewSet(viewsets.ModelViewSet):
@@ -96,7 +104,8 @@ class LogEntryViewSet(viewsets.ModelViewSet):
     serializer_class = LogEntrySerializer
 
     def create(self, request, *args, **kwargs):
-        user_id_str = request.data.get('user')
+        user_id_str = request.data.get('user') or request.data.get('user_id')
+        print("user_id",user_id_str)
         try:
             user_instance = UserMaster.objects.get(user_id=user_id_str)
         except UserMaster.DoesNotExist:
@@ -106,11 +115,38 @@ class LogEntryViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # ---------- NEW: validate and convert input ----------
+        try:
+            glucose = float(request.data.get('glucose_value'))
+        except (TypeError, ValueError):
+            return Response(
+                {"status": "error", "message": "glucose_value must be a number"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            amp = float(request.data.get('amp') or 0)      # amp is NOT NULL in the model
+        except (TypeError, ValueError):
+            return Response(
+                {"status": "error", "message": "amp must be a number"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        ts = parse_datetime(str(request.data.get('timestamp') or ''))
+        if ts is None:
+            return Response(
+                {"status": "error", "message": "timestamp is required in ISO format, e.g. 2026-10-17T10:30:00Z"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if timezone.is_naive(ts):
+            ts = timezone.make_aware(ts, timezone.get_current_timezone())
+        # ------------------------------------------------------
+
         log = LogEntry(
             user          = user_instance,
-            glucose_value = request.data.get('glucose_value'),
-            amp           = request.data.get('amp'),
-            timestamp     = request.data.get('timestamp'),
+            glucose_value = glucose,      # was request.data.get('glucose_value')
+            amp           = amp,          # was request.data.get('amp')
+            timestamp     = ts,           # was request.data.get('timestamp')
             note          = request.data.get('note', ''),
             deviceid      = request.data.get('deviceid', ''),
         )
@@ -123,25 +159,30 @@ class LogEntryViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(log, context={'request': request})
         return Response({"status": "success", "data": serializer.data})
 
+    # _create_alert_if_out_of_range stays exactly as it is
     @staticmethod
     def _create_alert_if_out_of_range(user, log):
         glucose_value = log.glucose_value
-
         if glucose_value is None:
             return
 
-        if glucose_value < LOW_GLUCOSE_THRESHOLD:
-            reason = f"Low glucose reading: {glucose_value} mg/dL (below {LOW_GLUCOSE_THRESHOLD})"
+        low, high = get_user_thresholds(user)
+
+        if glucose_value < low:
+            reason = f"Low glucose reading: {glucose_value} mg/dL (below {low})"
             severity = 'LOW'
-        elif glucose_value > HIGH_GLUCOSE_THRESHOLD:
-            reason = f"High glucose reading: {glucose_value} mg/dL (above {HIGH_GLUCOSE_THRESHOLD})"
-            severity="HIGH"
+        elif glucose_value > high:
+            reason = f"High glucose reading: {glucose_value} mg/dL (above {high})"
+            severity = 'HIGH'
         else:
             return
 
-        Alert.objects.create(user=user, log=log, reason=reason,severity=severity)
+        Alert.objects.create(
+            user=user, log=log, reason=reason, severity=severity,
+            glucose_value=glucose_value,
+            target_range_low=low, target_range_high=high,
+        )
         logger.info(f"Alert created: user_id={user.user_id}, glucose={glucose_value}, reason={reason}")
-
 class AlertViewSet(viewsets.ViewSet):
     def list(self, request):
         user_id = request.query_params.get('user')
@@ -448,7 +489,7 @@ class UserWiseLogEntryViewSet(viewsets.ViewSet):
             "data":         serializer.data,
         })
 
-
+@csrf_exempt
 def log_entries_page(request):
     logs_list   = LogEntry.objects.all().order_by('-id')
     paginator   = Paginator(logs_list, 150)
@@ -470,21 +511,37 @@ def user_wise_log_entries_page(request):
 
 
 # User Master
-class UserMasterViewSet(viewsets.ModelViewSet):
+# Add `mixins` to your existing DRF import at the top of views.py:
+#   from rest_framework import status, viewsets, mixins
+
+
+# User Master
+class UserMasterViewSet(
+    mixins.CreateModelMixin,      # POST /api/users/             (register)
+    mixins.RetrieveModelMixin,    # GET  /api/users/<user_id>/   (one user)
+    viewsets.GenericViewSet,
+    mixins.DestroyModelMixin,
+):
     queryset         = UserMaster.objects.all()
     serializer_class = UserMasterSerializer
     lookup_field     = 'user_id'
 
-    def list(self, request, *args, **kwargs):
-        queryset   = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True, context={'request': request})
-        return Response({"status": "success", "data": serializer.data})
 
     def retrieve(self, request, *args, **kwargs):
         instance   = self.get_object()
         serializer = self.get_serializer(instance, context={'request': request})
         return Response({"status": "success", "data": serializer.data})
+    def validate_emergency_contact_number(self, value):
+        own_mobile = None
+        if self.instance and self.instance.mobile_number:
+            own_mobile = self.instance.mobile_number
+        elif self.initial_data.get('mobile_number'):
+            own_mobile = self.initial_data.get('mobile_number')
 
+        try:
+            return _validate_emergency(value, own_mobile=own_mobile)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(list(e.messages))
     def create(self, request, *args, **kwargs):
         email_id = request.data.get('email_id', '').lower().strip()
         if not email_id:
@@ -509,21 +566,20 @@ class UserMasterViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_409_CONFLICT,
                 )
 
-        # --- Password validation + hashing (missing piece) ---
+        # --- Password validation ---
+        # raw_password = request.data.get('password')
+        # --- Password validation (optional, validated only if provided) ---
         raw_password = request.data.get('password')
-        if not raw_password:
-            return Response(
-                {"status": "error", "message": "password is required"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        raw_password = raw_password if raw_password not in (None, '') else None
 
-        try:
-            validate_password(raw_password)
-        except DjangoValidationError as e:
-            return Response(
-                {"status": "error", "message": "Weak password", "errors": list(e.messages)},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        if raw_password is not None:
+            try:
+                validate_password(raw_password)
+            except DjangoValidationError as e:
+                return Response(
+                    {"status": "error", "message": "Weak password", "errors": list(e.messages)},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         profile_picture = request.FILES.get('profile_picture')
         if profile_picture:
@@ -535,13 +591,15 @@ class UserMasterViewSet(viewsets.ModelViewSet):
                 )
 
         data = request.data.copy()
-        #data['password'] = make_password(raw_password)   # hash before saving
 
         serializer = self.get_serializer(data=data, context={'request': request})
         if serializer.is_valid():
             try:
                 user = serializer.save()
-                user.password = make_password(raw_password)
+                if raw_password is not None:
+                    user.password = make_password(raw_password)
+                else:
+                    user.password = None
                 user.save(update_fields=['password'])
             except IntegrityError:
                 logger.warning(f"User create failed: race-condition duplicate mobile_number={mobile_number}")
@@ -557,25 +615,9 @@ class UserMasterViewSet(viewsets.ModelViewSet):
 
         return Response({"status": "error", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        Alert.objects.filter(user=instance).delete()
-        LogEntry.objects.filter(user=instance).delete()
-        Trend.objects.filter(user=instance).delete()
-        DeviceMaster.objects.filter(user=instance).delete()
-        CaregiverMaster.objects.filter(user=instance).delete()
-        PasswordResetToken.objects.filter(user=instance).delete()
-        UserConsent.objects.filter(user=instance).delete()
-        UserPreference.objects.filter(user=instance).delete()
-        instance.delete()
-        logger.info(f"User deleted: user_id={instance.user_id}")
-        return Response(
-            {"status": "success", "message": "User deleted successfully"},
-            status=status.HTTP_200_OK,
-        )
     @action(detail=False, methods=['post'], url_path='login')
     def login(self, request):
-        email_id = request.data.get('email_id', '').lower().strip()
+        email_id = (request.data.get('email_id') or '').lower().strip()
         password = request.data.get('password')
 
         if not email_id or not password:
@@ -587,17 +629,33 @@ class UserMasterViewSet(viewsets.ModelViewSet):
         try:
             user = UserMaster.objects.get(email_id__iexact=email_id)
         except UserMaster.DoesNotExist:
-            logger.warning(f"Login Failed :email not found email={email_id}")
-            return Response({"status": "error", "message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+            logger.warning(f"Login Failed: email not found email={email_id}")
+            return Response(
+                {"status": "error", "message": "Invalid credentials"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        # Account has no password (Google sign-in, phone sign-in, or registered without one)
+        if not user.password:
+            logger.warning(f"Login Failed: no password set for account email={email_id}")
+            return Response(
+                {
+                    "status": "error",
+                    "message": "Unable to sign in with a password.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         if not check_password(password, user.password):
             logger.warning(f"Login Failed: wrong password email={email_id}")
-            return Response({"status": "error", "message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"status": "error", "message": "Invalid credentials"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
-        logger.info(f"Login successfully: user_id={user.user_id},email={email_id}")
+        logger.info(f"Login successful: user_id={user.user_id}, email={email_id}")
         serializer = self.get_serializer(user, context={'request': request})
         return Response({"status": "success", "message": "Login successful", "data": serializer.data})
-
     @action(detail=False, methods=['post'], url_path='validate_user')
     def validate_user(self, request):
         user_id = request.data.get('user_id')
@@ -635,7 +693,7 @@ class UserMasterViewSet(viewsets.ModelViewSet):
                 "data": {
                     "email_id":   user.email_id,
                     "first_name": user.first_name,
-                    "user_id": user.user_id,
+                    "user_id":    user.user_id,
                     "last_name":  user.last_name,
                     "isNewUser":  user.isNewUser,
                 },
@@ -690,7 +748,7 @@ class UserMasterViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_path='google_signin')
     def google_signin(self, request):
-        def _clean_str(value):               #this function handling the null values
+        def _clean_str(value):               # handles null-like values
             if value is None:
                 return None
             value = str(value).strip()
@@ -774,46 +832,74 @@ class UserMasterViewSet(viewsets.ModelViewSet):
             )
 
         return Response({"status": "error", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
     @action(detail=True, methods=['patch'], url_path='update_profile')
     def update_profile(self, request, user_id=None):
         instance = self.get_object()
-        if 'email_id' in request.data:
-            return Response({
-                "status":"error",
-                "message":"Registered email cannot be changed."
-            },status=status.HTTP_400_BAD_REQUEST)
+
+        # 1. Email can never be changed
+        incoming_email = request.data.get('email_id')
+        if incoming_email is not None:
+            if str(incoming_email).lower().strip() != (instance.email_id or '').lower():
+                return Response(
+                    {"status": "error", "message": "Registered email cannot be changed."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        # 2. Fields that are never editable through this endpoint
         restricted_fields = [
-            'email_id','first_name', 'last_name', 'middle_name', 'password', 'mobile_number', 'address',
-            'city', 'state', 'zip_code',
+            'email_id', 'first_name', 'last_name', 'middle_name', 'password',
+            'mobile_number', 'address', 'city', 'state', 'zip_code',
         ]
         data = request.data.copy()
         for field in restricted_fields:
             data.pop(field, None)
 
-        new_email = (request.data.get('email_id') or '').lower().strip()
-        if new_email and new_email != instance.email_id.lower():
-            return Response(
-                {"status": "error", "message": "Registered email cannot be changed."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        # 3. Set-once fields: editable only while null/empty, locked after that
+        LOCK_ONCE_SET = {'gender': 'Gender', 'dob': 'Date of birth'}
+        for field, label in LOCK_ONCE_SET.items():
+            current = getattr(instance, field)
+            if current in (None, ''):
+                continue  # not set yet -> user can update
 
+            incoming = request.data.get(field)
+            if incoming is not None:
+                if field == 'dob':
+                    same = str(incoming).strip()[:10] == str(current)
+                else:
+                    same = str(incoming).strip().lower() == str(current).lower()
+                if not same:
+                    return Response(
+                        {"status": "error", "message": f"{label} cannot be changed."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            data.pop(field, None)  # same value or not sent: ignore
+
+        # 4. Profile picture check
         profile_picture = request.FILES.get('profile_picture')
         if profile_picture:
-            allowed_formats = ['image/jpeg', 'image/png', 'image/gif']
-            if profile_picture.content_type not in allowed_formats:
+            if profile_picture.content_type not in ['image/jpeg', 'image/png', 'image/gif']:
                 return Response(
                     {"status": "error", "message": "Only JPG, PNG and GIF formats are allowed."},
                     status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
                 )
 
+        # 5. Save
         serializer = self.get_serializer(instance, data=data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save()
-            logger.info(f"Profile updated :user_id={instance.user_id}")
+            logger.info(f"Profile updated: user_id={instance.user_id}")
             return Response({"status": "success", "message": "Profile updated successfully", "data": serializer.data})
         logger.warning(f"Profile update failed: user_id={instance.user_id}")
         return Response({"status": "error", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
+    def destroy(self, request, *args, **kwargs):
+        user = self.get_object()
+        AuditLog.objects.create(user=user, device=None, action='USER_DELETED',
+                                reason='Deleted via API')
+        logger.info(f"User deleted: user_id={user.user_id}")
+        user.delete()
+        return Response({"status": "success", "message": "User deleted successfully"},
+                        status=status.HTTP_200_OK)
 
 # Delete Account  (web page flow)
 
@@ -879,20 +965,26 @@ class DeleteAccountViewSet(viewsets.ViewSet):
             'user': None, 'email_id': '', 'error': None, 'success': True,
         })
 
-
 # Glucose Reports
 
 def _filter_logs_by_date(logs, from_date_str, to_date_str):
     if from_date_str:
-        from_dt = parse_datetime(from_date_str) or parse_date(from_date_str)
-        if from_dt:
-            logs = logs.filter(timestamp__gte=from_dt)
+        dtv = parse_datetime(from_date_str)
+        if dtv is None:
+            d = parse_date(from_date_str)
+            dtv = make_aware(dt.datetime.combine(d, dt.time.min)) if d else None
+        if dtv:
+            logs = logs.filter(timestamp__gte=dtv)
     if to_date_str:
-        to_dt = parse_datetime(to_date_str) or parse_date(to_date_str)
-        if to_dt:
-            logs = logs.filter(timestamp__lte=to_dt)
+        dtv = parse_datetime(to_date_str)
+        if dtv is not None:
+            logs = logs.filter(timestamp__lte=dtv)
+        else:
+            d = parse_date(to_date_str)
+            if d:
+                logs = logs.filter(timestamp__lt=make_aware(
+                    dt.datetime.combine(d + timedelta(days=1), dt.time.min)))
     return logs
-
 
 def glucose_report_json(request, user_id):
     try:
@@ -1145,29 +1237,37 @@ class ResetPasswordViewSet(viewsets.ViewSet):
         email_id = (request.data.get('email_id') or '').strip()
         user_id  = (request.data.get('user_id')  or '').strip()
         token    = (request.data.get('token')    or '').strip()
-        password = (request.data.get('password') or '').strip()
+        password = request.data.get('password') or ''      # no .strip(), same as registration
 
-        # resend OTP email
+        # ---------------- Step 1: send / resend OTP ----------------
         if email_id:
             try:
                 user = UserMaster.objects.get(email_id__iexact=email_id)
             except UserMaster.DoesNotExist:
-                return Response({'status': False, 'message': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'status': False, 'message': 'User not found.'},
+                                status=status.HTTP_404_NOT_FOUND)
             except Exception as e:
                 logger.error(f"reset_password lookup failed: email={email_id}, error={e}")
-                return Response({'status': False, 'message': 'Something went wrong. Please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'status': False, 'message': 'Something went wrong. Please try again.'},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             try:
                 last_token = PasswordResetToken.objects.filter(user=user).order_by('-created_at').first()
-                if last_token:
+
+                # Cooldown applies only if the last token is NOT locked.
+                # A locked token (5 wrong attempts) may be resent immediately.
+                if last_token and last_token.attempts < self.MAX_OTP_ATTEMPTS:
                     seconds_since_last = (timezone.now() - last_token.created_at).total_seconds()
                     if seconds_since_last < self.RESEND_COOLDOWN_SECONDS:
                         wait_remaining = int(self.RESEND_COOLDOWN_SECONDS - seconds_since_last)
                         logger.warning(f"OTP resend blocked: too soon user_id={user.user_id}, wait={wait_remaining}s")
                         return Response(
-                            {'status': False, 'message': f'Please wait {wait_remaining} seconds before requesting another OTP.'},
+                            {'status': False,
+                             'message': f'Please wait {wait_remaining} seconds before requesting another OTP.',
+                             'retry_after_seconds': wait_remaining},
                             status=status.HTTP_429_TOO_MANY_REQUESTS,
                         )
+
                 with transaction.atomic():
                     invalidated_count = PasswordResetToken.objects.select_for_update().filter(
                         user=user, is_used=False
@@ -1182,12 +1282,11 @@ class ResetPasswordViewSet(viewsets.ViewSet):
                         expires_at = timezone.now() + timedelta(minutes=10),
                     )
 
-                logger.info(
-                    f"OTP token created: user_id={user.user_id}, invalidated_previous={invalidated_count}"
-                )
+                logger.info(f"OTP token created: user_id={user.user_id}, invalidated_previous={invalidated_count}")
             except Exception as e:
                 logger.error(f"OTP generation failed: email={email_id}, user_id={user.user_id}, error={e}")
-                return Response({'status': False, 'message': 'Failed to generate OTP. Please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'status': False, 'message': 'Failed to generate OTP. Please try again.'},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             reset_link = f'{settings.BASE_URL}/api/reset-password/redirect/?userId={user.user_id}&token={reset_token.token}'
             try:
@@ -1199,7 +1298,8 @@ class ResetPasswordViewSet(viewsets.ViewSet):
                 })
             except Exception as e:
                 logger.error(f"reset password email template render failed: email={email_id}, error={e}")
-                return Response({'status': False, 'message': 'Failed to prepare reset email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'status': False, 'message': 'Failed to prepare reset email.'},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             try:
                 response = http_requests.post(
@@ -1211,13 +1311,18 @@ class ResetPasswordViewSet(viewsets.ViewSet):
                         "template":       email_html,
                         "source_project": "CGM App",
                     },
-                    timeout=10,  # FIX: avoid hanging indefinitely if SMTP service is slow/down
+                    timeout=10,
                 )
                 response.raise_for_status()
-                logger.info(f"Password reset email sent:email={email_id}, user_id={user.user_id}")
+                logger.info(f"Password reset email sent: email={email_id}, user_id={user.user_id}")
             except Exception as e:
-                logger.error(f"password reset SMPT failed: email={email_id}, error={e}")
-                return Response({'status': False, 'message': 'Failed to send email.', 'error': str(e)}, status=status.HTTP_502_BAD_GATEWAY)
+                logger.error(f"password reset SMTP failed: email={email_id}, error={e}")
+                # If the email could not be sent, the new OTP is useless; invalidate it
+                PasswordResetToken.objects.filter(pk=reset_token.pk).update(is_used=True)
+                payload = {'status': False, 'message': 'Failed to send email. Please try again.'}
+                if settings.DEBUG:
+                    payload['error'] = str(e)          # visible only in dev
+                return Response(payload, status=status.HTTP_502_BAD_GATEWAY)
 
             return Response({
                 'status':  True,
@@ -1228,58 +1333,70 @@ class ResetPasswordViewSet(viewsets.ViewSet):
                 'resend_allowed_in_seconds': self.RESEND_COOLDOWN_SECONDS,
             })
 
-        # Step 2 apply new password
+        # ---------------- Step 2: apply new password ----------------
         if not all([user_id, token, password]):
             return Response(
                 {'status': False, 'message': 'Provide either email_id or (user_id, token, password).'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        try:
-            validate_password(password)
-        except DjangoValidationError as e:
-            return Response(
-                {'status': False, 'message': 'Weak password.', 'errors': list(e.messages)},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+
         try:
             uuid.UUID(token)
         except (ValueError, TypeError):
             logger.warning(f"password reset failed: malformed token user_id={user_id}")
-            return Response({'status': False, 'message': 'Invalid or already used token.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': False, 'message': 'Invalid or already used token.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            reset_token = PasswordResetToken.objects.get(user=user_id, token=token, is_used=False)
-        except PasswordResetToken.DoesNotExist:
-            logger.warning(f"Password reset Failed:invalid/used token user_id={user_id}")
-            return Response({'status': False, 'message': 'Invalid or already used token.'}, status=status.HTTP_400_BAD_REQUEST)
-        except (ValidationError, ValueError) as e:
-            logger.warning(f"password reset failed: bad token/user_id format user_id={user_id}, error={e}")
-            return Response({'status': False, 'message': 'Invalid or already used token.'}, status=status.HTTP_400_BAD_REQUEST)
+            with transaction.atomic():
+                # Row lock: a double-tap on "Reset password" cannot run twice
+                try:
+                    reset_token = (
+                        PasswordResetToken.objects.select_for_update()
+                        .select_related('user')
+                        .get(user=user_id, token=token, is_used=False)
+                    )
+                except PasswordResetToken.DoesNotExist:
+                    logger.warning(f"Password reset failed: invalid/used token user_id={user_id}")
+                    return Response({'status': False, 'message': 'Invalid or already used token.'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                except (ValidationError, ValueError) as e:
+                    logger.warning(f"password reset failed: bad token/user_id format user_id={user_id}, error={e}")
+                    return Response({'status': False, 'message': 'Invalid or already used token.'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+                if reset_token.expires_at and reset_token.expires_at < timezone.now():
+                    logger.warning(f"password reset failed: expired token user_id={user_id}")
+                    return Response({'status': False, 'message': 'Token has expired. Please request a new reset.'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+                if not reset_token.otp_verified:
+                    logger.warning(f"password reset failed: OTP not verified user_id={user_id}")
+                    return Response({'status': False, 'message': 'Please verify the OTP before setting a new password.'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+                # Validate with the user object so the similarity check works
+                try:
+                    validate_password(password, user=reset_token.user)
+                except DjangoValidationError as e:
+                    return Response(
+                        {'status': False, 'message': 'Weak password.', 'errors': list(e.messages)},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                user = reset_token.user
+                user.password = make_password(password)
+                user.save(update_fields=['password', 'updated_at'])
+                reset_token.is_used = True
+                reset_token.save(update_fields=['is_used'])
+
         except Exception as e:
-            logger.error(f"password reset lookup failed: user_id={user_id}, error={e}")
-            return Response({'status': False, 'message': 'Something went wrong. Please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"password reset failed: user_id={user_id}, error={e}")
+            return Response({'status': False, 'message': 'Failed to reset password. Please try again.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        if reset_token.expires_at < timezone.now():
-            logger.warning(f"password reset failed: expired token user_id={user_id}")
-            return Response({'status': False, 'message': 'Token has expired. Please request a new reset.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if not reset_token.otp_verified:
-            logger.warning(f"password reset failed: OTP not verified user_id={user_id}")
-            return Response({'status': False, 'message': 'Please verify the OTP before setting a new password.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            user          = reset_token.user
-            user.password = make_password(password)
-            user.save()
-            reset_token.is_used = True
-            reset_token.save()
-        except Exception as e:
-            logger.error(f"password reset save failed: user_id={user_id}, error={e}")
-            return Response({'status': False, 'message': 'Failed to reset password. Please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        logger.info(f"password reset successful : user_id={user_id}")
+        logger.info(f"password reset successful: user_id={user_id}")
         return Response({'status': True, 'message': 'Password reset successfully.'})
-
     # verify OTP
     @action(detail=False, methods=['post'], url_path='verify_otp')
     def verify_otp(self, request):
@@ -1293,69 +1410,93 @@ class ResetPasswordViewSet(viewsets.ViewSet):
             )
 
         try:
-            reset_token = PasswordResetToken.objects.filter(
-                user=user_id, is_used=False
-            ).latest('created_at')
-        except PasswordResetToken.DoesNotExist:
-            logger.warning(f"OTP verify failed: no active token user_id={user_id}")
-            return Response(
-                {'status': False, 'message': 'No pending OTP request found. Please request a new OTP.'},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            with transaction.atomic():
+                # Row lock: parallel clicks are processed one after another
+                reset_token = (
+                    PasswordResetToken.objects.select_for_update()
+                    .filter(user=user_id, is_used=False)
+                    .order_by('-created_at')
+                    .first()
+                )
+
+                if not reset_token:
+                    logger.warning(f"OTP verify failed: no active token user_id={user_id}")
+                    return Response(
+                        {'status': False, 'message': 'No pending OTP request found. Please request a new OTP.'},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+
+                if reset_token.expires_at and reset_token.expires_at < timezone.now():
+                    logger.warning(f"OTP verify failed: expired user_id={user_id}")
+                    return Response(
+                        {'status': False, 'message': 'OTP has expired. Please request a new one.'},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                code_matches = secrets.compare_digest(reset_token.otp_code or '', otp_code)
+
+                success_response = Response({
+                    'status':  True,
+                    'message': 'OTP verified successfully. You may now reset your password.',
+                    'user_id': reset_token.user.user_id,
+                    'token':   str(reset_token.token),
+                })
+
+                # Already verified (double-click on the correct OTP) -> return success again
+                if reset_token.otp_verified:
+                    if code_matches:
+                        return success_response
+                    return Response(
+                        {'status': False, 'message': 'Invalid OTP.'},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                # Locked from earlier wrong attempts
+                if reset_token.attempts >= self.MAX_OTP_ATTEMPTS:
+                    logger.warning(f"OTP verify failed: too many attempts user_id={user_id}")
+                    return Response(
+                        {'status': False,
+                         'message': 'Too many incorrect attempts. Please request a new OTP.',
+                         'locked': True},
+                        status=status.HTTP_429_TOO_MANY_REQUESTS,
+                    )
+
+                # Wrong OTP
+                if not code_matches:
+                    reset_token.attempts += 1
+                    reset_token.save(update_fields=['attempts'])
+                    remaining = self.MAX_OTP_ATTEMPTS - reset_token.attempts
+                    logger.warning(
+                        f"OTP verify failed: wrong code user_id={user_id}, attempts={reset_token.attempts}"
+                    )
+                    if remaining <= 0:   # this was the 5th wrong attempt -> lock now
+                        return Response(
+                            {'status': False,
+                             'message': 'Too many incorrect attempts. Please request a new OTP.',
+                             'locked': True},
+                            status=status.HTTP_429_TOO_MANY_REQUESTS,
+                        )
+                    return Response(
+                        {'status': False,
+                         'message': f'Invalid OTP. {remaining} attempt(s) remaining.',
+                         'remaining_attempts': remaining,
+                         'locked': False},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                # Correct OTP
+                reset_token.otp_verified = True
+                reset_token.save(update_fields=['otp_verified'])
+
+            logger.info(f"OTP verified successfully: user_id={user_id}")
+            return success_response
+
         except Exception as e:
-            logger.error(f"OTP verify lookup failed: user_id={user_id}, error={e}")
-            return Response({'status': False, 'message': 'Something went wrong. Please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        if reset_token.expires_at < timezone.now():
-            logger.warning(f"OTP verify failed: expired user_id={user_id}")
+            logger.error(f"OTP verify failed unexpectedly: user_id={user_id}, error={e}")
             return Response(
-                {'status': False, 'message': 'OTP has expired. Please request a new one.'},
-                status=status.HTTP_400_BAD_REQUEST,
+                {'status': False, 'message': 'Something went wrong. Please try again.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
-        if reset_token.otp_verified:
-            logger.warning(f"OTP verify failed: OTP already used/verified user_id={user_id}")
-            return Response(
-                {'status': False, 'message': 'This OTP has already been used. Please request a new one.'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if reset_token.attempts >= self.MAX_OTP_ATTEMPTS:
-            logger.warning(f"OTP verify failed: too many attempts user_id={user_id}")
-            return Response(
-                {'status': False, 'message': 'Too many incorrect attempts. Please request a new OTP.'},
-                status=status.HTTP_429_TOO_MANY_REQUESTS,
-            )
-
-        if reset_token.otp_code != otp_code:
-            try:
-                reset_token.attempts += 1
-                reset_token.save(update_fields=['attempts'])
-            except Exception as e:
-                logger.error(f"OTP attempt count save failed: user_id={user_id}, error={e}")
-                return Response({'status': False, 'message': 'Something went wrong. Please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            remaining = self.MAX_OTP_ATTEMPTS - reset_token.attempts
-            logger.warning(f"OTP verify failed: wrong code user_id={user_id}, attempts={reset_token.attempts}")
-            return Response(
-                {'status': False, 'message': f'Invalid OTP. {remaining} attempt(s) remaining.'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        try:
-            reset_token.otp_verified = True
-            reset_token.save(update_fields=['otp_verified'])
-        except Exception as e:
-            logger.error(f"OTP verified-flag save failed: user_id={user_id}, error={e}")
-            return Response({'status': False, 'message': 'Something went wrong. Please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        logger.info(f"OTP verified successfully: user_id={user_id}")
-
-        return Response({
-            'status':  True,
-            'message': 'OTP verified successfully. You may now reset your password.',
-            'user_id': reset_token.user.user_id,
-            'token':   str(reset_token.token),
-        })
 
 def reset_password_redirect_page(request):
     user_id = request.GET.get('userId')
@@ -2298,6 +2439,7 @@ class ReportViewSet(viewsets.ViewSet):
         if total == 0:
             return self._no_logs_response("No reading found for the given date range")
 
+
         tir = self._get_time_in_range(logs, total, low, high)  # ← reusing same method
 
         logger.info(f"Report time-in-range: user_id={user.user_id}, TIR={tir['time_in_range_pct']}%")
@@ -2967,6 +3109,13 @@ AGP_BUCKETS_PER_DAY = (24 * 60) // AGP_READING_INTERVAL_MINUTES  # 288
 AGP_MIN_DAYS = 5
 AGP_MAX_DAYS = 14
 
+AGP_CURVE_INTERVAL_MINUTES = 30
+AGP_CURVE_POINTS = (24 * 60) // AGP_CURVE_INTERVAL_MINUTES   # 48
+AGP_CURVE_MIN_SAMPLES = 3   # minimum readings in a slot to calculate percentiles
+
+def _agp_slot_index(timestamp):
+    ts = timezone.localtime(timestamp)          # IST, not UTC
+    return (ts.hour * 60 + ts.minute)
 def _agp_percentile(sorted_values, pct):
     if not sorted_values:
         return None
@@ -3038,27 +3187,30 @@ def _agp_device_dict(device):
         "assigned_at":      timezone.localtime(device.assigned_at),
     }
 
+from rest_framework.exceptions import MethodNotAllowed
 
 class AGPReportViewSet(ReportViewSet):
 
-    def list(self, request):
-        return Response({
-            "status": "success",
-            "endpoints": {
-                "agp_statistics":     "GET /api/agp/agp-statistics/?user=&from_date=&to_date=&device_serial_no=",
-                "agp_time_in_ranges": "GET /api/agp/agp-time-in-ranges/?user=&from_date=&to_date=&device_serial_no=",
-                "agp_curve":          "GET /api/agp/agp-curve/?user=&from_date=&to_date=&device_serial_no=",
-                "agp_daily_profiles": "GET /api/agp/agp-daily-profiles/?user=&from_date=&to_date=&device_serial_no=",
-                "agp_report_data":    "GET /api/agp/agp-report-data/?user=&from_date=&to_date=&device_serial_no=",
-                "agp_devices":        "GET /api/agp/agp-devices/?user=&from_date=&to_date=",
-            },
-            "notes": {
-                "reading_interval_minutes": AGP_READING_INTERVAL_MINUTES,
-                "min_days_required":        AGP_MIN_DAYS,
-                "max_days_supported":       AGP_MAX_DAYS,
-                "device_filter":            "Pass device_serial_no (or device) on any endpoint to scope to one sensor.",
-            },
-        })
+    def list(self, request,*args,**kwargs):
+        raise MethodNotAllowed(request.method)
+
+    # return Response({
+        #     "status": "success",
+        #     "endpoints": {
+        #         "agp_statistics":     "GET /api/agp/agp-statistics/?user=&from_date=&to_date=&device_serial_no=",
+        #         "agp_time_in_ranges": "GET /api/agp/agp-time-in-ranges/?user=&from_date=&to_date=&device_serial_no=",
+        #         "agp_curve":          "GET /api/agp/agp-curve/?user=&from_date=&to_date=&device_serial_no=",
+        #         "agp_daily_profiles": "GET /api/agp/agp-daily-profiles/?user=&from_date=&to_date=&device_serial_no=",
+        #         "agp_report_data":    "GET /api/agp/agp-report-data/?user=&from_date=&to_date=&device_serial_no=",
+        #         "agp_devices":        "GET /api/agp/agp-devices/?user=&from_date=&to_date=",
+        #     },
+        #     "notes": {
+        #         "reading_interval_minutes": AGP_READING_INTERVAL_MINUTES,
+        #         "min_days_required":        AGP_MIN_DAYS,
+        #         "max_days_supported":       AGP_MAX_DAYS,
+        #         "device_filter":            "Pass device_serial_no (or device) on any endpoint to scope to one sensor.",
+        #     },
+        # })
 
     # device lookup / validation
     def _get_device(self, user, device_serial_no):
@@ -3186,8 +3338,8 @@ class AGPReportViewSet(ReportViewSet):
 
         return {
             "report_period": {
-                "from_date": from_date.strftime("%B %-d, %Y"),
-                "to_date":   to_date.strftime("%B %-d, %Y"),
+                "from_date": f"{from_date:%B} {from_date.day}, {from_date.year}",
+                "to_date":   f"{to_date:%B} {to_date.day}, {to_date.year}",
                 "days":      period_days,
             },
             "device":                 _agp_device_dict(device),
@@ -3252,35 +3404,53 @@ class AGPReportViewSet(ReportViewSet):
 
     # Section 3: percentile curve (5/25/50/75/95th)
     def _compute_agp_curve(self, logs):
-        buckets = {}
-        for ts, gv in logs.values_list('timestamp', 'glucose_value'):
-            buckets.setdefault(_agp_bucket_key(ts), []).append(gv)
+        interval = AGP_CURVE_INTERVAL_MINUTES          # 30
+        n_slots = (24 * 60) // interval                # 48
+        slots = [[] for _ in range(n_slots)]
 
-        curve = []
-        for i in range(AGP_BUCKETS_PER_DAY):
-            h, m = divmod(i * AGP_READING_INTERVAL_MINUTES, 60)
-            key = f"{h:02d}:{m:02d}"
-            values = sorted(buckets.get(key, []))
-            p5     = _agp_percentile(values, 5)
-            p25    = _agp_percentile(values, 25)
-            median = _agp_percentile(values, 50)
-            p75    = _agp_percentile(values, 75)
-            p95    = _agp_percentile(values, 95)
-            curve.append({
-                "time":        key,
+        for ts, gv in logs.values_list('timestamp', 'glucose_value'):
+            if ts is None or gv is None:
+                continue
+            local_ts = timezone.localtime(ts)
+            idx = (local_ts.hour * 60 + local_ts.minute) // interval
+            if 0 <= idx < n_slots:                     # safety guard
+                slots[idx].append(float(gv))
+
+        points, filled = [], 0
+        for i, values in enumerate(slots):
+            h, m = divmod(i * interval, 60)
+            values.sort()
+            has_data = len(values) >= AGP_CURVE_MIN_SAMPLES
+            if has_data:
+                filled += 1
+
+            def p(pct):
+                return _agp_percentile(values, pct) if has_data else None
+
+            p5, p25, med, p75, p95 = p(5), p(25), p(50), p(75), p(95)
+            points.append({
+                "time":        f"{h:02d}:{m:02d}",
+                "has_data":    has_data,
+                "n":           len(values),
                 "p5_mgdl":     p5,
                 "p25_mgdl":    p25,
-                "median_mgdl": median,
+                "median_mgdl": med,
                 "p75_mgdl":    p75,
                 "p95_mgdl":    p95,
                 "p5_mmol":     _agp_mgdl_to_mmol(p5),
                 "p25_mmol":    _agp_mgdl_to_mmol(p25),
-                "median_mmol": _agp_mgdl_to_mmol(median),
+                "median_mmol": _agp_mgdl_to_mmol(med),
                 "p75_mmol":    _agp_mgdl_to_mmol(p75),
                 "p95_mmol":    _agp_mgdl_to_mmol(p95),
-                "n":           len(values),
             })
-        return curve
+
+        return {
+            "interval_minutes": interval,
+            "expected_points":  n_slots,
+            "filled_points":    filled,
+            "coverage_pct":     round(filled / n_slots * 100, 1),
+            "points":           points,
+        }
 
     @action(detail=False, methods=['get'], url_path='agp-curve')
     def agp_curve(self, request):
@@ -3289,15 +3459,14 @@ class AGPReportViewSet(ReportViewSet):
             return err
         curve = self._compute_agp_curve(logs)
         logger.info(f"AGP curve: user_id={user.user_id}, device={device.device_serial_no if device else None}, "
-                    f"points={len(curve)}")
+                    f"filled={curve['filled_points']}/{curve['expected_points']}")
         return Response({
             "status": "success",
             "data": {
                 "device":            _agp_device_dict(device),
                 "target_range_mgdl": [AGP_TARGET_MIN, AGP_TARGET_MAX],
                 "target_range_mmol": [_agp_mgdl_to_mmol(AGP_TARGET_MIN), _agp_mgdl_to_mmol(AGP_TARGET_MAX)],
-                "interval_minutes":  AGP_READING_INTERVAL_MINUTES,
-                "points":            curve,
+                **curve,
             },
         })
 
@@ -4146,4 +4315,331 @@ class TrendViewSet(viewsets.ViewSet):
         })
 
 
-# GEN AI insight
+#Spiking Features (High and Low)
+
+def _error(message, http_status=status.HTTP_400_BAD_REQUEST, **extra):
+    return Response({"status": "error", "message": message, **extra}, status=http_status)
+
+
+def event_type_for_log(log):
+    """Same thresholds as LogEntryViewSet._create_alert_if_out_of_range."""
+    gv = log.glucose_value
+    if gv is None:
+        return None
+    if gv < LOW_GLUCOSE_THRESHOLD:
+        return 'LOW'
+    if gv > HIGH_GLUCOSE_THRESHOLD:
+        return 'HIGH'
+    return None
+def _find_log(user, timestamp_str, glucose_value=None):
+    """Find a reading by user + timestamp (same minute) + optional glucose_value."""
+    if not timestamp_str:
+        return None
+    dt_value = parse_datetime(str(timestamp_str))
+    if dt_value is None:
+        return None
+    if timezone.is_naive(dt_value):
+        dt_value = timezone.make_aware(dt_value, timezone.get_current_timezone())
+
+    minute_start = dt_value.replace(second=0, microsecond=0)
+    qs = LogEntry.objects.filter(
+        user=user,
+        timestamp__gte=minute_start,
+        timestamp__lt=minute_start + timedelta(minutes=1),
+    )
+
+    if glucose_value not in (None, ''):
+        try:
+            gv = float(glucose_value)
+        except (TypeError, ValueError):
+            return None
+        qs = qs.filter(glucose_value__gte=gv - 0.01, glucose_value__lte=gv + 0.01)
+
+    return qs.order_by('-id').first()
+
+
+def _successors(question):
+    nxt = [o.next_question_id for o in question.options.all() if o.next_question_id]
+    if question.next_question_id:
+        nxt.append(question.next_question_id)
+    return set(nxt)
+
+
+def _compute_que_counts(questions_by_pk):
+    """
+    queCount = number of questions on the LONGEST remaining path, including this one.
+    Lets mobile draw a progress bar even though branches have different lengths.
+    Raises ValueError on a loop in the question tree.
+    """
+    memo, visiting = {}, set()
+
+    def depth(pk):
+        if pk in memo:
+            return memo[pk]
+        if pk in visiting:
+            raise ValueError(f"Loop detected at question {questions_by_pk[pk].question_id}")
+        visiting.add(pk)
+        best = 0
+        for nxt in _successors(questions_by_pk[pk]):
+            if nxt in questions_by_pk:            # inactive targets are ignored
+                best = max(best, depth(nxt))
+        visiting.discard(pk)
+        memo[pk] = best + 1
+        return memo[pk]
+
+    for pk in questions_by_pk:
+        depth(pk)
+    return memo
+
+
+def _serialize_response(resp):
+    return {
+        "response_id":   resp.id,
+        "log_id":        resp.log_id,
+        "user":          resp.user_id,
+        "event_type":    resp.event_type,
+        "glucose_value": resp.log.glucose_value,
+        "timestamp":     timezone.localtime(resp.log.timestamp),
+        "created_at":    timezone.localtime(resp.created_at),
+        "answers": [
+            {
+                "step":        a.step,
+                "question_id": a.question.question_id,
+                "question":    a.question_text,
+                "option_ids":  [o.option_id for o in a.selected_options.all()],
+                "labels":      a.option_labels,
+                "text":        a.text_answer or "",
+            }
+            for a in resp.answers.all()
+        ],
+    }
+
+
+#questions
+class SpikeQuestionViewSet(viewsets.ViewSet):
+    def list(self, request):
+        event_type = (request.query_params.get('event_type') or '').upper()
+        if event_type not in EVENT_TYPES:
+            return _error("event_type must be LOW or HIGH")
+
+        questions = list(
+            SpikeQuestion.objects
+            .filter(event_type=event_type, is_active=True)
+            .select_related('next_question')
+            .prefetch_related('options__next_question')
+        )
+        start = next((q for q in questions if q.is_start), None)
+        if not start:
+            logger.error(f"Spike questions: no start question for event_type={event_type}")
+            return _error(f"No start question configured for {event_type}",
+                          status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        by_pk = {q.pk: q for q in questions}
+        try:
+            que_counts = _compute_que_counts(by_pk)
+        except ValueError as e:
+            logger.error(f"Spike questions: {e}")
+            return _error("Questionnaire is misconfigured (loop)", status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        def _next_id(q):
+            return q.question_id if (q and q.pk in by_pk) else None
+
+        data = {}
+        for q in questions:
+            data[q.question_id] = {
+                "id":                   q.question_id,
+                "question":             q.question,
+                "desc":                 q.desc,
+                "queCount":             que_counts[q.pk],
+                "isTextAllow":          q.is_text_allow,
+                "isMultipleChoiceAllow": q.is_multiple_choice_allow,
+                "isFollowUp":           q.is_follow_up,                 # NEW
+                "nextQuestionId":       _next_id(q.next_question),
+                "options": [
+                    {
+                        "id":             o.option_id,
+                        "label":          o.label,
+                        "desc":           o.desc,
+                        "iconUrl":        o.icon_url or None,           # NEW
+                        "nextQuestionId": _next_id(o.next_question),
+                    }
+                    for o in q.options.all()
+                ],
+            }
+
+        return Response({"status": "success", "data": {
+            "event_type":      event_type,
+            "startQuestionId": start.question_id,
+            "totalQuestions":  que_counts[start.pk],
+            "questions":       data,
+        }})
+
+
+# user responses  #
+
+class SpikeResponseViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        user_id = request.query_params.get('user')
+        ts      = request.query_params.get('timestamp')
+
+        qs = (SpikeResponse.objects
+              .select_related('log')
+              .prefetch_related('answers__question', 'answers__selected_options'))
+
+        if not user_id:
+            return _error("user parameter is required")
+        user = UserMaster.objects.filter(user_id=user_id).first()
+        if not user:
+            return _error("User not found", status.HTTP_404_NOT_FOUND)
+
+        # one specific reading: is it answered?
+        if ts:
+            log = _find_log(user, ts, request.query_params.get('glucose_value'))
+            if not log:
+                return _error("Reading not found", status.HTTP_404_NOT_FOUND)
+            resp = qs.filter(log=log).first()
+            if not resp:
+                return Response({"status": "success", "answered": False, "data": None})
+            return Response({"status": "success", "answered": True, "data": _serialize_response(resp)})
+
+        # history
+        qs = qs.filter(user_id=user_id)
+        event_type = (request.query_params.get('event_type') or '').upper()
+        if event_type in EVENT_TYPES:
+            qs = qs.filter(event_type=event_type)
+
+        log_ids = _filter_logs_by_date(
+            LogEntry.objects.filter(user_id=user_id),
+            request.query_params.get('from_date'),
+            request.query_params.get('to_date'),
+        ).values('id')
+        qs = qs.filter(log_id__in=log_ids)
+
+        data = [_serialize_response(r) for r in qs]
+        return Response({"status": "success", "count": len(data), "data": data})
+
+    def create(self, request):
+        user_id = request.data.get('user')
+        answers = request.data.get('answers') or []
+
+        if not user_id:
+            return _error("user is required")
+        if not isinstance(answers, list) or not answers:
+            return _error("answers must be a non-empty list")
+
+        try:
+            user = UserMaster.objects.get(user_id=user_id)
+        except UserMaster.DoesNotExist:
+            return _error("User not found", status.HTTP_404_NOT_FOUND)
+
+        # ---------------- CHANGED: find reading by timestamp + glucose_value ----------------
+        if not request.data.get('timestamp'):
+            return _error("timestamp is required")
+        if request.data.get('glucose_value') in (None, ''):
+            return _error("glucose_value is required")
+
+        log = _find_log(user, request.data.get('timestamp'), request.data.get('glucose_value'))
+        if not log:
+            return _error("No reading found for this user with that timestamp and glucose value",
+                          status.HTTP_404_NOT_FOUND)
+        # ------------------------------------------------------------------------------------
+
+        event_type = event_type_for_log(log)          # derived from glucose_value, never from mobile
+        if not event_type:
+            return _error(f"Reading {log.glucose_value} mg/dL is within range")
+
+        if SpikeResponse.objects.filter(log=log).exists():
+            return _error("A response for this reading already exists", status.HTTP_409_CONFLICT)
+
+        # ---- walk the path the user actually took ----
+        current = (SpikeQuestion.objects
+                   .filter(event_type=event_type, is_start=True, is_active=True)
+                   .prefetch_related('options').first())
+        if not current:
+            return _error("Questionnaire not configured", status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        validated = []
+        for step, ans in enumerate(answers, start=1):
+            if not isinstance(ans, dict):
+                return _error(f"Step {step}: each answer must be an object")
+            if current is None:
+                return _error(f"Unexpected extra answer at step {step}")
+
+            qid = ans.get('question_id')
+            if qid != current.question_id:
+                return _error(f"Step {step}: expected question '{current.question_id}', got '{qid}'")
+
+            option_ids = ans.get('option_ids') or []
+            if not isinstance(option_ids, list):
+                return _error(f"'{qid}': option_ids must be a list")
+            text = (ans.get('text') or '').strip()
+
+            all_options = {o.option_id: o for o in current.options.all()}
+            unknown = [oid for oid in option_ids if oid not in all_options]
+            if unknown:
+                return _error(f"'{qid}': invalid option(s) {unknown}")
+            options = [all_options[oid] for oid in dict.fromkeys(option_ids)]   # de-dup, keep order
+
+            if len(options) > 1 and not current.is_multiple_choice_allow:
+                return _error(f"'{qid}' allows only one option")
+            if text and not current.is_text_allow:
+                return _error(f"'{qid}' does not accept text")
+            if not options and not text:
+                return _error(f"'{qid}' needs an answer")
+            if all_options and not options and not current.is_text_allow:
+                return _error(f"'{qid}' needs an option")
+
+            validated.append((step, current, options, text))
+
+            # Branching: single-choice -> option.next ; multi-select / text -> question.next
+            if len(options) == 1 and not current.is_multiple_choice_allow:
+                nxt = options[0].next_question
+            else:
+                nxt = current.next_question
+            current = (SpikeQuestion.objects.prefetch_related('options')
+                       .filter(pk=nxt.pk, is_active=True).first()) if nxt else None
+
+        if current is not None:
+            return _error(f"Questionnaire incomplete; next question is '{current.question_id}'",
+                          next_question_id=current.question_id)
+
+        # ---- save ----
+        try:
+            with transaction.atomic():
+                resp = SpikeResponse.objects.create(log=log, user=user, event_type=event_type)
+                for step, question, options, text in validated:
+                    answer = SpikeAnswer.objects.create(
+                        response=resp,
+                        question=question,
+                        text_answer=text or None,
+                        question_text=question.question,
+                        option_labels=[o.label for o in options],
+                        step=step,
+                    )
+                    if options:
+                        answer.selected_options.set(options)
+        except IntegrityError:
+            return _error("A response for this reading already exists", status.HTTP_409_CONFLICT)
+
+        logger.info(f"Spike response saved: user_id={user.user_id}, log_id={log.id}, "
+                    f"event={event_type}, glucose={log.glucose_value}, steps={len(validated)}")
+
+        resp = (SpikeResponse.objects.select_related('log')
+                .prefetch_related('answers__question', 'answers__selected_options').get(pk=resp.pk))
+        return Response({
+            "status":  "success",
+            "message": "Response saved",
+            "data":    _serialize_response(resp),
+        }, status=status.HTTP_201_CREATED)
+
+
+
+
+
+
+
+
+
+
+

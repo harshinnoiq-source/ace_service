@@ -72,7 +72,7 @@
 # ---------------------------------------------------------------------------
 # Seed AGP test glucose readings
 #
-# User:   INNOIQCGM00003
+# User:   INNOIQCGM00193
 # Device: Board2
 # Period: 2026-08-12 -> 2026-08-24
 #
@@ -90,11 +90,11 @@ from django.utils import timezone
 from api.models import UserMaster, LogEntry
 
 
-USER_ID = "INNOIQCGM00003"
+USER_ID = "INNOIQCGM00193"
 DEVICE_ID = "Board2"
 
-FROM_DATE = "2026-08-27"
-TO_DATE   = "2026-09-10"
+FROM_DATE = "2026-10-12"
+TO_DATE   = "2026-10-22"
 
 INTERVAL_MIN = 5
 

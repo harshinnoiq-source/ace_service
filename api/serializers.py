@@ -3,7 +3,7 @@ from .models import *
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
-
+from api.validators import validate_emergency_contact_number as _validate_emergency
 
 class VersionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -33,8 +33,32 @@ class UserMasterSerializer(serializers.ModelSerializer):
         }
 
     def validate_email_id(self, value):
-        return value.lower().strip()
+        value = value.lower().strip()
+        if self.instance and (self.instance.email_id or '').lower() != value:
+            raise serializers.ValidationError("Registered email cannot be changed.")
+        return value
 
+    def validate_gender(self, value):
+        if self.instance and self.instance.gender and self.instance.gender != value:
+            raise serializers.ValidationError("Gender cannot be changed.")
+        return value
+
+    def validate_dob(self, value):
+        if self.instance and self.instance.dob and self.instance.dob != value:
+            raise serializers.ValidationError("Date of birth cannot be changed.")
+        return value
+    def validate_emergency_contact_number(self, value):
+        # Register: mobile comes from the request.
+        # update_profile: mobile_number is stripped from data, so fall back to the saved user.
+        own = self.initial_data.get('mobile_number') or (
+            self.instance.mobile_number if self.instance else None
+        )
+        if own:
+            own = normalize_mobile_number(own)
+        try:
+            return _validate_emergency(value, own_mobile=own)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(e.messages)
     # Create user
     def create(self, validated_data):
         password = validated_data.pop('password', None)
@@ -234,3 +258,43 @@ class TrendSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trend
         fields ="__all__"
+
+
+#spiking Features
+class SpikeAnswerSerializer(serializers.ModelSerializer):
+    question_id = serializers.CharField(source='question.question_id')
+    question    = serializers.CharField(source='question_text')
+    option_ids  = serializers.SerializerMethodField()
+    labels      = serializers.JSONField(source='option_labels')
+    text        = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = SpikeAnswer
+        fields = ['step', 'question_id', 'question', 'option_ids', 'labels', 'text']
+
+    def get_option_ids(self, obj):
+        return [o.option_id for o in obj.selected_options.all()]
+
+    def get_text(self, obj):
+        return obj.text_answer or ""
+
+
+class SpikeResponseSerializer(serializers.ModelSerializer):
+    response_id   = serializers.IntegerField(source='id')
+    log_id        = serializers.IntegerField()
+    user          = serializers.CharField(source='user_id')
+    glucose_value = serializers.FloatField(source='log.glucose_value')
+    timestamp     = serializers.SerializerMethodField()
+    created_at    = serializers.SerializerMethodField()
+    answers       = SpikeAnswerSerializer(many=True, read_only=True)
+
+    class Meta:
+        model  = SpikeResponse
+        fields = ['response_id', 'log_id', 'user', 'event_type', 'glucose_value',
+                  'timestamp', 'created_at', 'answers']
+
+    def get_timestamp(self, obj):
+        return timezone.localtime(obj.log.timestamp)
+
+    def get_created_at(self, obj):
+        return timezone.localtime(obj.created_at)
